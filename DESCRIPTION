@@ -1,0 +1,19 @@
+Package: largeRCRF
+Type: Package
+Title: Large Random Competing Risk Forests, Java Implementation Run in R
+Version: 0.0.0.9036
+Authors@R: person("Joel", "Therrien", email = "joel@joeltherrien.ca", role = c("aut", "cre"))
+Description: This package is used for training competing risk random forests on larger scale datasets. 
+    It currently only supports training models, running predictions, plotting those predictions (they are curves),
+    and some simple error analysis using concordance measures.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Imports:
+    rJava (>= 0.9-9)
+Suggests:
+    parallel,
+    testthat
+Depends: R (>= 3.4.2)
+SystemRequirements: Java JDK 1.8 or higher
+RoxygenNote: 6.1.1
