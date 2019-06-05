@@ -54,3 +54,13 @@ R> model <- train(..., data=data.env, ...)
 when in practice only the trees being trained on need to be loaded. 
 You can specify `savePath` to give a directory for `largeRCRF` to save trees in during training,
 which will allow to `largeRCRF` to conserve memory for only those trees being currently trained.
+
+### Training stalls immediately at 0 trees and the CPU is idle
+
+This issue has been observed before on one particular system (and only on that system) but it's not clear what causes it. 
+It would be appreciated if you could report this bug to [joelt@sfu.ca](mailto:joelt@sfu.ca) and give your operating system
+and the version of Java installed (the entire output of `java --version`). 
+
+As a workaround, this issue seems to occur randomly; so try restarting your code to see if it runs.
+
+
