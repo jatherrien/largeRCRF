@@ -1,4 +1,5 @@
 
+# Internal function to calculate how many CPU cores are available.
 getCores <- function(){
   cores <- NA
   if (requireNamespace("parallel", quietly = TRUE)){
@@ -22,7 +23,10 @@ getCores <- function(){
 #' response you plug in. \code{splitFinder} should work on the responses you are
 #' providing; \code{nodeResponseCombiner} should combine these responses into
 #' some intermediate product, and \code{forestResponseCombiner} combines these
-#' intermediate products into the final output product.
+#' intermediate products into the final output product. Note that
+#' \code{nodeResponseCombiner} and \code{forestResponseCombiner} can be inferred
+#' from the data (so feel free to not specify them), and \code{splitFinder} can
+#' be inferred but you might want to change its default.
 #'
 #' @param responses An R list of the responses. See \code{\link{CR_Response}}
 #'   for an example function.
@@ -34,7 +38,7 @@ getCores <- function(){
 #'   forest training algorithm. See \code{\link{Competing Risk Split Finders}}
 #'   or \code{\link{WeightedVarianceSplitFinder}}. If you don't specify one,
 #'   this function tries to pick one based on the response. For
-#'   \code{\link{CR_Response}} wihtout censor times, it will pick a
+#'   \code{\link{CR_Response}} without censor times, it will pick a
 #'   \code{\link{LogRankSplitFinder}}; while if censor times were provided it
 #'   will pick \code{\link{GrayLogRankSplitFinder}}; for integer or numeric
 #'   responses it picks a \code{\link{WeightedVarianceSplitFinder}}.
@@ -63,23 +67,24 @@ getCores <- function(){
 #'   randomly chosen to be tried in the splitting process. This value must be at
 #'   least 1.
 #' @param nodeSize The algorithm will not attempt to split a node that has
-#'   observations less than 2*\code{nodeSize}; this results in terminal nodes
-#'   having a size of roughly \code{nodeSize} (true sizes may be both smaller or
-#'   greater). This value must be at least 1.
+#'   observations less than 2*\code{nodeSize}; this guarantees that any two
+#'   sibling terminal nodes together have an average size of at least
+#'   \code{nodeSize}; note that it doesn't guarantee that every node is at least
+#'   as large as \code{nodeSize}.
 #' @param maxNodeDepth This parameter is analogous to \code{nodeSize} in that it
-#'   helps keep trees shorter; by default maxNodeDepth is an extremely high
+#'   controls tree length; by default \code{maxNodeDepth} is an extremely high
 #'   number and tree depth is controlled by \code{nodeSize}.
 #' @param splitPureNodes This parameter determines whether the algorithm will
 #'   split a pure node. If set to FALSE, then before every split it will check
 #'   that every response is the same, and if so, not split. If set to TRUE it
-#'   forgoes that check and just splits. Prediction accuracy won't change under
-#'   any sensible \code{nodeResponseCombiner} as all terminal nodes from a split
+#'   forgoes that check and splits it. Prediction accuracy won't change under
+#'   any sensible \code{nodeResponseCombiner}; as all terminal nodes from a split
 #'   pure node should give the same prediction, so this parameter only affects
 #'   performance. If your response is continuous you'll likely experience faster
 #'   train times by setting it to TRUE. Default value is TRUE.
 #' @param savePath If set, this parameter will save each tree of the random
 #'   forest in this directory as the forest is trained. Use this parameter if
-#'   you need to save memory while training. See also \code{\link{load_forest}}
+#'   you need to save memory while training. See also \code{\link{loadForest}}
 #' @param savePath.overwrite This parameter controls the behaviour for what
 #'   happens if \code{savePath} is pointing to an existing directory. If set to
 #'   \code{warn} (default) then \code{train} refuses to proceed. If set to
@@ -93,12 +98,12 @@ getCores <- function(){
 #'   a crash.
 #' @param cores This parameter specifies how many trees will be simultaneously
 #'   trained. By default the package attempts to detect how many cores you have
-#'   by using the \code{parallel} package, and using all of them. You may
+#'   by using the \code{parallel} package and using all of them. You may
 #'   specify a lower number if you wish. It is not recommended to specify a
 #'   number greater than the number of available cores as this will hurt
 #'   performance with no available benefit.
 #' @param randomSeed This parameter specifies a random seed if reproducible,
-#'   deterministic forests are desired. The number o1
+#'   deterministic forests are desired. 
 #' @export
 #' @return A \code{JRandomForest} object. You may call \code{predict} or
 #'   \code{print} on it.
@@ -135,8 +140,8 @@ getCores <- function(){
 #'
 #' data <- data.frame(x1, x2)
 #'
-#' forest <- train(CompetingRiskResponses(delta, u) ~ x1 + x2, data,
-#' LogRankSplitFinder(1:2), CompetingRiskResponseCombiner(1:2), CompetingRiskFunctionCombiner(1:2), ntree=100, numberOfSplits=5, mtry=1, nodeSize=10)
+#' forest <- train(CR_Response(delta, u) ~ x1 + x2, data,
+#' LogRankSplitFinder(1:2), CR_kResponseCombiner(1:2), CR_FunctionCombiner(1:2), ntree=100, numberOfSplits=5, mtry=1, nodeSize=10)
 #' newData <- data.frame(x1 = c(-1, 0, 1), x2 = 0)
 #' ypred <- predict(forest, newData)
 train <- function(x, ...) UseMethod("train")
@@ -280,20 +285,6 @@ train.default <- function(responses, covariateData, splitFinder = splitFinderDef
 
   forestObject <- list(call=match.call(), params=params, javaObject=forest.java, covariateList=dataset$covariateList)
 
-  # TODO - remove redundant code if tests pass
-  #forestObject$params <- list(
-  #  splitFinder=splitFinder,
-  #  nodeResponseCombiner=nodeResponseCombiner,
-  #  forestResponseCombiner=forestResponseCombiner,
-  #  ntree=ntree,
-  #  numberOfSplits=numberOfSplits,
-  #  mtry=mtry,
-  #  nodeSize=nodeSize,
-  #  splitPureNodes=splitPureNodes,
-  #  maxNodeDepth = maxNodeDepth,
-  #  savePath=savePath
-  #)
-
   class(forestObject) <- "JRandomForest"
   return(forestObject)
 
@@ -304,7 +295,9 @@ train.default <- function(responses, covariateData, splitFinder = splitFinderDef
 
 #' @rdname train
 #' @export
-#' @param formula You may specify the response and covariates as a formula instead; make sure the response in the formula is still properly constructed; see \code{responses}
+#' @param formula You may specify the response and covariates as a formula
+#'   instead; make sure the response in the formula is still properly
+#'   constructed; see \code{responses}
 train.formula <- function(formula, covariateData, ...){
   
   # Having an R copy of the data loaded at the same time can be wasteful; we

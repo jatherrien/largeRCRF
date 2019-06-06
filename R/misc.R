@@ -1,18 +1,4 @@
-#' convertRListToJava
-#'
-#' An internal function that converts an R list of rJava objects into a
-#' java.util.List rJava object containing those objects. It's used internally,
-#' and is only available because it's used in some examples that demonstrate what
-#' other objects do.
-#' @param lst The R list containing rJava objects
-#' @export
-#' @return An rJava List object to be used internally.
-#' @keywords internal
-#' @examples
-#' x <- Numeric(1:5)
-#' class(x)
-#' x <- convertRListToJava(x)
-#' class(x)
+# Internal function
 convertRListToJava <- function(lst){
   javaList <- .jnew(.class_ArrayList, as.integer(length(lst)))
   javaList <- .jcast(javaList, .class_List)

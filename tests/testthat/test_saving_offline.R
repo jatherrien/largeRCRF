@@ -20,7 +20,7 @@ test_that("Can save a random forest while training, and use it afterward", {
   predictions <- predict(forest, newData)
   
   # Also make sure we can load the forest too
-  newforest <- load_forest("trees")
+  newforest <- loadForest("trees")
   predictions <- predict(newforest, newData)
   
   

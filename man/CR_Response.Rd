@@ -38,5 +38,5 @@ u <- pmin(T1, T2, C)
 delta <- ifelse(u == T1, 1, ifelse(u == T2, 2, 0))
 
 responses <- CR_Response(delta, u)
-# Then use responses in train
+# Then use responses in train or naiveConcordance
 }

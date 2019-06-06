@@ -28,7 +28,7 @@
 #' delta <- ifelse(u == T1, 1, ifelse(u == T2, 2, 0))
 #'
 #' responses <- CR_Response(delta, u)
-#' # Then use responses in train
+#' # Then use responses in train or naiveConcordance
 CR_Response <- function(delta, u, C = NULL){
   if(is.null(C)){
     return(Java_CompetingRiskResponses(delta, u))

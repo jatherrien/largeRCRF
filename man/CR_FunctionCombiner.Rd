@@ -17,17 +17,6 @@ faster performance when predicting, however if the times are not exhaustive
 then the resulting curves will not update at that point (they'll be flat).
 If left blank, the package will default to using all of the time points.}
 }
-\value{
-A response combiner object to be used in \code{\link{train}}; not
-  useful on its own. However, internally, a response combiner object is a
-  list consisting of the following objects: \describe{
-  \item{\code{javaObject}}{The java object used in the algorithm}
-  \item{\code{call}}{The call (used in \code{print})}
-  \item{\code{outputClass}}{The R class of the outputs; used in
-  \code{\link{predict.JRandomForest}}} \item{\code{convertToRFunction}}{An R
-  function that converts a Java prediction from the combiner into R output
-  that is readable by a user.} }
-}
 \description{
 Creates a CompetingRiskFunctionCombiner rJava object, which is used
 internally for constructing a forest. The forest uses it when creating

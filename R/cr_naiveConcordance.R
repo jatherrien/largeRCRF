@@ -2,8 +2,8 @@
 #' Naive Concordance
 #'
 #' Used to calculate a concordance index error. The user needs to supply a list
-#' of mortalities, with each item in the list being a vector for the specific
-#' events. To calculate mortalities a user should look to
+#' of mortalities, with each item in the list being a vector for the
+#' corresponding event. To calculate mortalities a user should look to
 #' \code{\link{extractMortalities}}.
 #'
 #' @return A vector of 1 minus the concordance scores, with each element
@@ -16,6 +16,21 @@
 #'   list should correspond to one of the events in the order of event 1 to J,
 #'   and should be a vector of the same length as responses.
 #' @export
+#' @examples
+#' data <- data.frame(delta=c(1,1,0,0,2,2), T=1:6, x=1:6)
+#' 
+#' model <- train(CR_Response(delta, T) ~ x, data, ntree=100, numberOfSplits=0, mtry=1, nodeSize=1)
+#' 
+#' newData <- data.frame(delta=c(1,0,2,1,0,2), T=1:6, x=1:6)
+#' predictions <- predict(model, newData)
+#' 
+#' mortalities <- list(
+#'   extractMortalities(predictions, 1, 6),
+#'   extractMortalities(predictions, 2, 6)
+#' )
+#' 
+#' naiveConcordance(CR_Response(newData$delta, newData$T), mortalities)
+#' 
 naiveConcordance <- function(responses, predictedMortalities){
   if(is.null(responses)){
     stop("responses cannot be null")

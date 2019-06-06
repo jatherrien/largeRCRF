@@ -13,7 +13,7 @@
 #'   default.
 
 #' @export
-#' @seealso \code{\link{train}}, \code{\link{load_forest}}
+#' @seealso \code{\link{train}}, \code{\link{loadForest}}
 #' @examples
 #' # Regression Example
 #' x1 <- rnorm(1000)
@@ -24,9 +24,9 @@
 #' forest <- train(y ~ x1 + x2, data,
 #'  ntree=100, numberOfSplits = 5, mtry = 1, nodeSize = 5)
 #'
-#' save_forest(forest, "trees")
-#' new_forest <- load_forest("trees")
-save_forest <- function(forest, directory, overwrite=FALSE){
+#' saveForest(forest, "trees")
+#' new_forest <- loadForest("trees")
+saveForest <- function(forest, directory, overwrite=FALSE){
   check_and_create_directory(directory, overwrite)
   
   saveTrees(forest, directory)

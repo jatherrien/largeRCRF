@@ -6,17 +6,6 @@
 \usage{
 MeanResponseCombiner()
 }
-\value{
-A response combiner object to be used in \code{\link{train}}; not
-  useful on its own. However, internally, a response combiner object is a
-  list consisting of the following objects:
- \describe{
-  \item{\code{javaObject}}{The java object used in the algorithm}
-  \item{\code{call}}{The call (used in \code{print})}
-  \item{\code{outputClass}}{The R class of the outputs; used in \code{\link{predict.JRandomForest}}}
-  \item{\code{convertToRFunction}}{An R function that converts a Java prediction from the combiner into R output that is readable by a user.}
-}
-}
 \description{
 This response combiner is used in regression random forests, where the
 response in the data is a single number that needs to be averaged in each
@@ -32,7 +21,7 @@ responseCombiner <- MeanResponseCombiner()
 # However; I'll show an internal Java method to make it clear what it does
 # Note that you should never have to do the following
 x <- 1:3
-x <- convertRListToJava(Numeric(x))
+x <- largeRCRF:::convertRListToJava(Numeric(x))
 
 # will output a Java object containing 2
 output <- rJava::.jcall(responseCombiner$javaObject, "Ljava/lang/Double;", "combine", x)

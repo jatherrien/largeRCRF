@@ -11,17 +11,6 @@ CR_ResponseCombiner(events)
 functions should be processed. This should correspond to all of the
 competing risk events that can occur, from 1 to the largest number.}
 }
-\value{
-A response combiner object to be used in \code{\link{train}}; not
-  useful on its own. However, internally, a response combiner object is a
-  list consisting of the following objects: \describe{
-  \item{\code{javaObject}}{The java object used in the algorithm}
-  \item{\code{call}}{The call (used in \code{print})}
-  \item{\code{outputClass}}{The R class of the outputs; used in
-  \code{\link{predict.JRandomForest}}} \item{\code{convertToRFunction}}{An R
-  function that converts a Java prediction from the combiner into R output
-  that is readable by a user.} }
-}
 \description{
 Creates a CompetingRiskResponseCombiner rJava object, which is used
 internally for constructing a forest. It is used when each tree in the forest

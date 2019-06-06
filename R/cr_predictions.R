@@ -1,6 +1,7 @@
 
-
-convertCompetingRiskFunctionsSlow <- function(javaObject, forest){
+# Internal function used to convert the Java functions into R functions
+# Provided for use as a parameter in CR_FunctionCombiner & CR_ResponseCombiner
+convertCompetingRiskFunctions <- compiler::cmpfun(function(javaObject, forest){
   events <- forest$params$forestResponseCombiner$events
   lst <- list(javaObject = javaObject, events = events)
   
@@ -24,9 +25,7 @@ convertCompetingRiskFunctionsSlow <- function(javaObject, forest){
   
   class(lst) <- "CompetingRiskFunctions"
   return(lst)
-}
-
-convertCompetingRiskFunctions <- compiler::cmpfun(convertCompetingRiskFunctionsSlow)
+})
 
 
 #' Competing Risk Predictions

@@ -2,12 +2,12 @@
 
 #' Load Random Forest
 #'
-#' Loads a random forest that was saved using \code{\link{save_forest}}.
+#' Loads a random forest that was saved using \code{\link{saveForest}}.
 #'
 #' @param forest The directory created that saved the previous forest.
 #' @return A JForest object; see \code{\link{train}} for details.
 #' @export
-#' @seealso \code{\link{train}}, \code{\link{save_forest}}
+#' @seealso \code{\link{train}}, \code{\link{saveForest}}, \code{\link{loadForestArg}}
 #' @examples
 #' # Regression Example
 #' x1 <- rnorm(1000)
@@ -18,9 +18,9 @@
 #' forest <- train(y ~ x1 + x2, data,
 #'  ntree=100, numberOfSplits = 5, mtry = 1, nodeSize = 5)
 #'
-#' save_forest(forest, "trees")
-#' new_forest <- load_forest("trees")
-load_forest <- function(directory){
+#' saveForest(forest, "trees")
+#' new_forest <- loadForest("trees")
+loadForest <- function(directory){
   
   # First load the response combiners and the split finders
   nodeResponseCombiner.java <- .jcall(.class_DataUtils, makeResponse(.class_Object), "loadObject", paste0(directory, "/nodeResponseCombiner.jData"))
@@ -42,15 +42,20 @@ load_forest <- function(directory){
   params$splitFinder$javaObject <- splitFinder.java
   params$forestResponseCombiner$javaObject <- forestResponseCombiner.java
   
-  forest <- load_forest_args_provided(directory, params$nodeResponseCombiner, params$splitFinder, params$forestResponseCombiner, covariateList, call,
+  forest <- loadForestArgumentsSpecified(directory, params$nodeResponseCombiner, params$splitFinder, params$forestResponseCombiner, covariateList, call,
                                       params$ntree, params$numberOfSplits, params$mtry, params$nodeSize, params$maxNodeDepth, params$splitPureNodes)
   
   return(forest)
   
 }
 
-#' @export
-load_forest_args_provided <- function(treeDirectory, nodeResponseCombiner, splitFinder, forestResponseCombiner, 
+# Internal function - if you really need to use it yourself (say to load forests
+# saved directly through the Java interface into R), then look at the loadForest
+# function to see how this function is used. I'm also open to writing a function
+# that uses the Java version's settings yaml file to recreate the forest, but
+# I'd appreciate knowing that someone's going to use it first (email me; see
+# README).
+loadForestArgumentsSpecified <- function(treeDirectory, nodeResponseCombiner, splitFinder, forestResponseCombiner, 
                                  covariateList.java, call, ntree, numberOfSplits, mtry, nodeSize, maxNodeDepth = 100000, splitPureNodes=TRUE){
   
   params <- list(

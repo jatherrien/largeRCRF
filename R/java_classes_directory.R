@@ -1,5 +1,6 @@
-# This file keeps track of the different Java classes used
-# Whenever refactoring happens in the Java code, this file should be updated and (hopefully) nothing will break.
+# This file keeps track of the different Java classes used. Whenever refactoring
+# happens in the Java code, this file should be updated and (hopefully) nothing
+# will break.
 
 # General Java objects
 .class_Object <- "java/lang/Object"
@@ -51,7 +52,7 @@
 
 # When a class object is returned, rJava often often wants L prepended and ; appended. 
 # So a list that returns "java/lang/Object" should show "Ljava/lang/Object;"
-# This function does that
+# This function does that.
 makeResponse <- function(className){
   return(paste0("L", className, ";"))
 }

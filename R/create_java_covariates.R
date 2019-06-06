@@ -1,4 +1,4 @@
-# These functions are not exported, so I won't create their documentation either.
+# These functions are not exported, so I won't provide their documentation either.
 # I.e. it's not a mistake that the documentation below lacks the " ' " on each line.
 
 # Covariates

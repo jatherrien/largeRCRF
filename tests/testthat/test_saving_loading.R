@@ -13,8 +13,8 @@ test_that("Can save & load regression example", {
                   ntree=100, numberOfSplits = 5, mtry = 1, nodeSize = 5)
   
   
-  save_forest(forest, "trees_saving_loading")
-  new_forest <- load_forest("trees_saving_loading")
+  saveForest(forest, "trees_saving_loading")
+  new_forest <- loadForest("trees_saving_loading")
   
   # try making a little prediction to verify it works
   newData <- data.frame(x1=seq(from=-3, to=3, by=0.5), x2=0)

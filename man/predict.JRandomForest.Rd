@@ -17,8 +17,9 @@ the dataset after the forest is trained.}
 
 \item{parallel}{A logical indicating whether multiple cores should be
 utilized when making the predictions. Available as an option because it's
-been observed by this author that using Java's \code{parallelStream} can be
-unstable on some systems. Default value is \code{TRUE}.}
+been observed that using Java's \code{parallelStream} can be unstable on
+some systems. Default value is \code{TRUE}; only set to \code{FALSE} if you
+get strange errors while predicting.}
 
 \item{out.of.bag}{A logical indicating whether predictions should be based on
 'out of bag' trees; set only to \code{TRUE} if you're running predictions
@@ -38,7 +39,7 @@ x2 <- rnorm(1000)
 y <- 1 + x1 + x2 + rnorm(1000)
 
 data <- data.frame(x1, x2, y)
-forest <- train(y ~ x1 + x2, data, WeightedVarianceSplitFinder(), MeanResponseCombiner(), MeanResponseCombiner(), ntree=100, numberOfSplits = 5, mtry = 1, nodeSize = 5)
+forest <- train(y ~ x1 + x2, data, ntree=100, numberOfSplits = 5, mtry = 1, nodeSize = 5)
 
 # Fix x2 to be 0
 newData <- data.frame(x1 = seq(from=-2, to=2, by=0.5), x2 = 0)
@@ -58,8 +59,7 @@ delta <- ifelse(u==T1, 1, ifelse(u==T2, 2, 0))
 
 data <- data.frame(x1, x2)
 
-forest <- train(CR_Response(delta, u) ~ x1 + x2, data,
-LogRankSplitFinder(1:2), CompetingRiskResponseCombiner(1:2), CompetingRiskFunctionCombiner(1:2), ntree=100, numberOfSplits=5, mtry=1, nodeSize=10)
+forest <- train(CR_Response(delta, u) ~ x1 + x2, data, ntree=100, numberOfSplits=5, mtry=1, nodeSize=10)
 newData <- data.frame(x1 = c(-1, 0, 1), x2 = 0)
 ypred <- predict(forest, newData)
 }
