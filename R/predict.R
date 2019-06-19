@@ -6,9 +6,9 @@
 #'
 #' @param forest A forest that was previously \code{\link{train}}ed
 #' @param newData The new data containing all of the previous predictor
-#'   covariates. Note that even if predictions are being made on the training
-#'   set, the dataset must be specified. \code{largeRCRF} doesn't keep track of
-#'   the dataset after the forest is trained.
+#'   covariates. Can be NULL if you want to use the training dataset, and
+#'   \code{forest} hasn't been loaded from the disk; otherwise you'll have to
+#'   specify it.
 #' @param parallel A logical indicating whether multiple cores should be
 #'   utilized when making the predictions. Available as an option because it's
 #'   been observed that using Java's \code{parallelStream} can be unstable on
@@ -16,7 +16,8 @@
 #'   get strange errors while predicting.
 #' @param out.of.bag A logical indicating whether predictions should be based on
 #'   'out of bag' trees; set only to \code{TRUE} if you're running predictions
-#'   on data that was used in the training. Default value is \code{FALSE}.
+#'   on data that was used in the training. Default value is \code{TRUE} if
+#'   \code{newData} is \code{NULL}, otherwise \code{FALSE}.
 #' @return A list of responses corresponding with each row of \code{newData} if
 #'   it's a non-regression random forest; otherwise it returns a numeric vector.
 #' @export
@@ -50,18 +51,33 @@
 #' forest <- train(CR_Response(delta, u) ~ x1 + x2, data, ntree=100, numberOfSplits=5, mtry=1, nodeSize=10)
 #' newData <- data.frame(x1 = c(-1, 0, 1), x2 = 0)
 #' ypred <- predict(forest, newData)
-predict.JRandomForest <- function(forest, newData=NULL, parallel=TRUE, out.of.bag=FALSE){
+predict.JRandomForest <- function(forest, newData=NULL, parallel=TRUE, out.of.bag=NULL){
+  
+  if(is.null(newData) & is.null(forest$dataset)){
+    stop("forest doesn't have a copy of the training data loaded (this happens if you just loaded it); please manually specify newData and possibly out.of.bag")
+  }
+
   if(is.null(newData)){
-    stop("newData must be specified, even if predictions are on the training set") 
+    predictionDataList <- forest$dataset
+    
+    if(is.null(out.of.bag)){
+      out.of.bag <- TRUE
+    }
+  }
+  else{ # newData is provided
+    if(is.null(out.of.bag)){
+      out.of.bag <- FALSE
+    }
+    
+    predictionDataList <- loadPredictionData(newData, forest$covariateList)
   }
   
+  numRows <- .jcall(predictionDataList, "I", "size")
+  
   forestObject <- forest$javaObject
-  covariateList <- forest$covariateList
   predictionClass <- forest$params$forestResponseCombiner$outputClass
   convertToRFunction <- forest$params$forestResponseCombiner$convertToRFunction
 
-  predictionDataList <- loadPredictionData(newData, covariateList)
-  
   if(parallel){
     function.to.use <- "evaluate"
   }
@@ -82,8 +98,7 @@ predict.JRandomForest <- function(forest, newData=NULL, parallel=TRUE, out.of.ba
     predictions <- list()
   }
 
-
-  for(i in 1:nrow(newData)){
+  for(i in 1:numRows){
     prediction <- .jcall(predictionsJava, makeResponse(.class_Object), "get", as.integer(i-1))
     prediction <- convertToRFunction(prediction, forest)
 

@@ -10,7 +10,8 @@ test_that("Can save & load regression example", {
   
   data <- data.frame(x1, x2, y)
   forest <- train(y ~ x1 + x2, data,
-                  ntree=100, numberOfSplits = 5, mtry = 1, nodeSize = 5)
+                  ntree=100, numberOfSplits = 5, mtry = 1, nodeSize = 5, 
+                  displayProgress=FALSE)
   
   
   saveForest(forest, "trees_saving_loading")

@@ -11,7 +11,7 @@ test_that("Can save a random forest while training, and use it afterward", {
   data <- data.frame(x1, x2, y)
   forest <- train(y ~ x1 + x2, data,
                   ntree=100, numberOfSplits = 5, mtry = 1, nodeSize = 5,
-                  savePath="trees")
+                  savePath="trees", displayProgress=FALSE)
   
   expect_true(file.exists("trees")) # Something should have been saved
   

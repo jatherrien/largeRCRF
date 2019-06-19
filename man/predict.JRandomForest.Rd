@@ -5,15 +5,15 @@
 \title{Predict}
 \usage{
 \method{predict}{JRandomForest}(forest, newData = NULL,
-  parallel = TRUE, out.of.bag = FALSE)
+  parallel = TRUE, out.of.bag = NULL)
 }
 \arguments{
 \item{forest}{A forest that was previously \code{\link{train}}ed}
 
 \item{newData}{The new data containing all of the previous predictor
-covariates. Note that even if predictions are being made on the training
-set, the dataset must be specified. \code{largeRCRF} doesn't keep track of
-the dataset after the forest is trained.}
+covariates. Can be NULL if you want to use the training dataset, and
+\code{forest} hasn't been loaded from the disk; otherwise you'll have to
+specify it.}
 
 \item{parallel}{A logical indicating whether multiple cores should be
 utilized when making the predictions. Available as an option because it's
@@ -23,7 +23,8 @@ get strange errors while predicting.}
 
 \item{out.of.bag}{A logical indicating whether predictions should be based on
 'out of bag' trees; set only to \code{TRUE} if you're running predictions
-on data that was used in the training. Default value is \code{FALSE}.}
+on data that was used in the training. Default value is \code{TRUE} if
+\code{newData} is \code{NULL}, otherwise \code{FALSE}.}
 }
 \value{
 A list of responses corresponding with each row of \code{newData} if

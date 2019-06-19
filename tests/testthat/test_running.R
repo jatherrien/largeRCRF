@@ -9,7 +9,7 @@ test_that("Competing Risks doesn't crash", {
   testData <- sampleData[1:5,]
   trainingData <- sampleData[6:100,]
   
-  forest <- train(CR_Response(delta, T) ~ x, trainingData, ntree=50, numberOfSplits=0, mtry=1, nodeSize=5, cores=2)
+  forest <- train(CR_Response(delta, T) ~ x, trainingData, ntree=50, numberOfSplits=0, mtry=1, nodeSize=5, cores=2, displayProgress=FALSE)
   
   predictions <- predict(forest, testData)
   
@@ -25,7 +25,7 @@ test_that("Regresssion doesn't crash", {
   testData <- sampleData[1:5,]
   trainingData <- sampleData[6:100,]
   
-  forest <- train(y ~ x, trainingData, ntree=50, numberOfSplits=0, mtry=1, nodeSize=5, cores=2)
+  forest <- train(y ~ x, trainingData, ntree=50, numberOfSplits=0, mtry=1, nodeSize=5, cores=2, displayProgress=FALSE)
   
   predictions <- predict(forest, testData)
   

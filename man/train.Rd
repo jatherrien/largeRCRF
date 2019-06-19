@@ -15,18 +15,17 @@ train(x, ...)
   ntree, numberOfSplits, mtry, nodeSize, maxNodeDepth = 1e+05,
   splitPureNodes = TRUE, savePath = NULL,
   savePath.overwrite = c("warn", "delete", "merge"),
-  cores = getCores(), randomSeed = NULL)
+  cores = getCores(), randomSeed = NULL, displayProgress = TRUE)
 
-\method{train}{formula}(formula, covariateData, ...)
+\method{train}{formula}(formula, data, ...)
 }
 \arguments{
 \item{responses}{An R list of the responses. See \code{\link{CR_Response}}
 for an example function.}
 
 \item{covariateData}{A data.frame containing only the columns of the
-covariates you wish to use in your training (unless you're using the
-\code{formula} version of \code{train}, in which case it should contain the
-response as well).}
+covariates you wish to use in your training (not relevant if you're using
+the formula version of \code{train}).}
 
 \item{splitFinder}{A split finder that's used to score splits in the random
 forest training algorithm. See \code{\link{Competing Risk Split Finders}}
@@ -80,10 +79,10 @@ number and tree depth is controlled by \code{nodeSize}.}
 split a pure node. If set to FALSE, then before every split it will check
 that every response is the same, and if so, not split. If set to TRUE it
 forgoes that check and splits it. Prediction accuracy won't change under
-any sensible \code{nodeResponseCombiner}; as all terminal nodes from a split
-pure node should give the same prediction, so this parameter only affects
-performance. If your response is continuous you'll likely experience faster
-train times by setting it to TRUE. Default value is TRUE.}
+any sensible \code{nodeResponseCombiner}; as all terminal nodes from a
+split pure node should give the same prediction, so this parameter only
+affects performance. If your response is continuous you'll likely
+experience faster train times by setting it to TRUE. Default value is TRUE.}
 
 \item{savePath}{If set, this parameter will save each tree of the random
 forest in this directory as the forest is trained. Use this parameter if
@@ -103,17 +102,25 @@ a crash.}
 
 \item{cores}{This parameter specifies how many trees will be simultaneously
 trained. By default the package attempts to detect how many cores you have
-by using the \code{parallel} package and using all of them. You may
-specify a lower number if you wish. It is not recommended to specify a
-number greater than the number of available cores as this will hurt
-performance with no available benefit.}
+by using the \code{parallel} package and using all of them. You may specify
+a lower number if you wish. It is not recommended to specify a number
+greater than the number of available cores as this will hurt performance
+with no available benefit.}
 
 \item{randomSeed}{This parameter specifies a random seed if reproducible,
 deterministic forests are desired.}
 
+\item{displayProgress}{A logical indicating whether the progress should be
+displayed to console; default is \code{TRUE}. Useful to set to FALSE in
+some automated situations.}
+
 \item{formula}{You may specify the response and covariates as a formula
 instead; make sure the response in the formula is still properly
 constructed; see \code{responses}}
+
+\item{data}{A data.frame containing the columns of the predictors and
+responses; not relevant if you're not using the formula version of
+\code{train}.}
 }
 \value{
 A \code{JRandomForest} object. You may call \code{predict} or
@@ -133,11 +140,11 @@ from the data (so feel free to not specify them), and \code{splitFinder} can
 be inferred but you might want to change its default.
 }
 \note{
-If saving memory is a concern, you can replace \code{covariateData}
-  with an environment containing one element called \code{data} as the actual
-  dataset. After the data has been imported into Java, but before the forest
-  training begins, the dataset in the environment is deleted, freeing up
-  memory in R.
+If saving memory is a concern, you can replace \code{covariateData} or
+  \code{data} with an environment containing one element called \code{data}
+  as the actual dataset. After the data has been imported into Java, but
+  before the forest training begins, the dataset in the environment is
+  deleted, freeing up memory in R.
 }
 \examples{
 # Regression Example

@@ -50,6 +50,16 @@
 .class_LogRankSplitFinder <- "ca/joeltherrien/randomforest/responses/competingrisk/splitfinder/LogRankSplitFinder"
 .class_WeightedVarianceSplitFinder <- "ca/joeltherrien/randomforest/responses/regression/WeightedVarianceSplitFinder"
 
+.object_Optional <- function(forest=NULL){
+  if(is.null(forest)){
+    return(.jcall("java/util/Optional", "Ljava/util/Optional;", "empty"))
+  } else{
+    forest <- .jcast(forest, .class_Object)
+    return(.jcall("java/util/Optional", "Ljava/util/Optional;", "of", forest))
+  }
+  
+}
+
 # When a class object is returned, rJava often often wants L prepended and ; appended. 
 # So a list that returns "java/lang/Object" should show "Ljava/lang/Object;"
 # This function does that.

@@ -30,10 +30,12 @@ getCores <- function(){
 #'
 #' @param responses An R list of the responses. See \code{\link{CR_Response}}
 #'   for an example function.
+#' @param data A data.frame containing the columns of the predictors and
+#'   responses; not relevant if you're not using the formula version of
+#'   \code{train}.
 #' @param covariateData A data.frame containing only the columns of the
-#'   covariates you wish to use in your training (unless you're using the
-#'   \code{formula} version of \code{train}, in which case it should contain the
-#'   response as well).
+#'   covariates you wish to use in your training (not relevant if you're using
+#'   the formula version of \code{train}).
 #' @param splitFinder A split finder that's used to score splits in the random
 #'   forest training algorithm. See \code{\link{Competing Risk Split Finders}}
 #'   or \code{\link{WeightedVarianceSplitFinder}}. If you don't specify one,
@@ -78,10 +80,10 @@ getCores <- function(){
 #'   split a pure node. If set to FALSE, then before every split it will check
 #'   that every response is the same, and if so, not split. If set to TRUE it
 #'   forgoes that check and splits it. Prediction accuracy won't change under
-#'   any sensible \code{nodeResponseCombiner}; as all terminal nodes from a split
-#'   pure node should give the same prediction, so this parameter only affects
-#'   performance. If your response is continuous you'll likely experience faster
-#'   train times by setting it to TRUE. Default value is TRUE.
+#'   any sensible \code{nodeResponseCombiner}; as all terminal nodes from a
+#'   split pure node should give the same prediction, so this parameter only
+#'   affects performance. If your response is continuous you'll likely
+#'   experience faster train times by setting it to TRUE. Default value is TRUE.
 #' @param savePath If set, this parameter will save each tree of the random
 #'   forest in this directory as the forest is trained. Use this parameter if
 #'   you need to save memory while training. See also \code{\link{loadForest}}
@@ -98,21 +100,24 @@ getCores <- function(){
 #'   a crash.
 #' @param cores This parameter specifies how many trees will be simultaneously
 #'   trained. By default the package attempts to detect how many cores you have
-#'   by using the \code{parallel} package and using all of them. You may
-#'   specify a lower number if you wish. It is not recommended to specify a
-#'   number greater than the number of available cores as this will hurt
-#'   performance with no available benefit.
+#'   by using the \code{parallel} package and using all of them. You may specify
+#'   a lower number if you wish. It is not recommended to specify a number
+#'   greater than the number of available cores as this will hurt performance
+#'   with no available benefit.
 #' @param randomSeed This parameter specifies a random seed if reproducible,
-#'   deterministic forests are desired. 
+#'   deterministic forests are desired.
+#' @param displayProgress A logical indicating whether the progress should be
+#'   displayed to console; default is \code{TRUE}. Useful to set to FALSE in
+#'   some automated situations.
 #' @export
 #' @return A \code{JRandomForest} object. You may call \code{predict} or
 #'   \code{print} on it.
 #' @seealso \code{\link{predict.JRandomForest}}
-#' @note If saving memory is a concern, you can replace \code{covariateData}
-#'   with an environment containing one element called \code{data} as the actual
-#'   dataset. After the data has been imported into Java, but before the forest
-#'   training begins, the dataset in the environment is deleted, freeing up
-#'   memory in R.
+#' @note If saving memory is a concern, you can replace \code{covariateData} or
+#'   \code{data} with an environment containing one element called \code{data}
+#'   as the actual dataset. After the data has been imported into Java, but
+#'   before the forest training begins, the dataset in the environment is
+#'   deleted, freeing up memory in R.
 #' @examples
 #' # Regression Example
 #' x1 <- rnorm(1000)
@@ -150,7 +155,7 @@ train <- function(x, ...) UseMethod("train")
 
 #' @rdname train
 #' @export
-train.default <- function(responses, covariateData, splitFinder = splitFinderDefault(responses), nodeResponseCombiner = nodeResponseCombinerDefault(responses), forestResponseCombiner = forestResponseCombinerDefault(responses), ntree, numberOfSplits, mtry, nodeSize, maxNodeDepth = 100000, splitPureNodes=TRUE, savePath=NULL, savePath.overwrite=c("warn", "delete", "merge"), cores = getCores(), randomSeed = NULL){
+train.default <- function(responses, covariateData, splitFinder = splitFinderDefault(responses), nodeResponseCombiner = nodeResponseCombinerDefault(responses), forestResponseCombiner = forestResponseCombinerDefault(responses), ntree, numberOfSplits, mtry, nodeSize, maxNodeDepth = 100000, splitPureNodes=TRUE, savePath=NULL, savePath.overwrite=c("warn", "delete", "merge"), cores = getCores(), randomSeed = NULL, displayProgress = TRUE){
   
   # Some quick checks on parameters
   ntree <- as.integer(ntree)
@@ -223,7 +228,8 @@ train.default <- function(responses, covariateData, splitFinder = splitFinderDef
                                        dataset=dataset$dataset,
                                        ntree=ntree,
                                        randomSeed=randomSeed,
-                                       saveTreeLocation=savePath)
+                                       saveTreeLocation=savePath,
+                                       displayProgress=displayProgress)
   
   params <- list(
     splitFinder=splitFinder,
@@ -235,7 +241,7 @@ train.default <- function(responses, covariateData, splitFinder = splitFinderDef
     nodeSize=nodeSize,
     splitPureNodes=splitPureNodes,
     maxNodeDepth = maxNodeDepth,
-    savePath=savePath
+    randomSeed=randomSeed
   )
   
   # We'll be saving an offline version of the forest
@@ -262,9 +268,9 @@ train.default <- function(responses, covariateData, splitFinder = splitFinderDef
                          forestCall=match.call())
     
     if(cores > 1){
-      .jcall(forestTrainer, "V", "trainParallelOnDisk", as.integer(cores))
+      .jcall(forestTrainer, "V", "trainParallelOnDisk", .object_Optional(), as.integer(cores))
     } else {
-      .jcall(forestTrainer, "V", "trainSerialOnDisk")
+      .jcall(forestTrainer, "V", "trainSerialOnDisk", .object_Optional())
     }
     
     # Need to now load forest trees back into memory
@@ -274,16 +280,16 @@ train.default <- function(responses, covariateData, splitFinder = splitFinderDef
   }
   else{ # save directly into memory
     if(cores > 1){
-      forest.java <- .jcall(forestTrainer, makeResponse(.class_Forest), "trainParallelInMemory", as.integer(cores))
+      forest.java <- .jcall(forestTrainer, makeResponse(.class_Forest), "trainParallelInMemory", .object_Optional(), as.integer(cores))
     } else {
-      forest.java <- .jcall(forestTrainer, makeResponse(.class_Forest), "trainSerialInMemory")
+      forest.java <- .jcall(forestTrainer, makeResponse(.class_Forest), "trainSerialInMemory", .object_Optional())
     }
   }
   
 
   
 
-  forestObject <- list(call=match.call(), params=params, javaObject=forest.java, covariateList=dataset$covariateList)
+  forestObject <- list(call=match.call(), params=params, javaObject=forest.java, covariateList=dataset$covariateList, dataset=dataset$dataset)
 
   class(forestObject) <- "JRandomForest"
   return(forestObject)
@@ -298,19 +304,19 @@ train.default <- function(responses, covariateData, splitFinder = splitFinderDef
 #' @param formula You may specify the response and covariates as a formula
 #'   instead; make sure the response in the formula is still properly
 #'   constructed; see \code{responses}
-train.formula <- function(formula, covariateData, ...){
+train.formula <- function(formula, data, ...){
   
   # Having an R copy of the data loaded at the same time can be wasteful; we
   # also allow users to provide an environment of the data which gets removed
   # after being imported into Java
   env <- NULL
-  if(class(covariateData) == "environment"){
-    if(is.null(covariateData$data)){
+  if(class(data) == "environment"){
+    if(is.null(data$data)){
       stop("When providing an environment with the dataset, the environment must contain an item called 'data'")
     }
     
-    env <- covariateData
-    covariateData <- env$data
+    env <- data
+    data <- env$data
   }
 
   yVar <- formula[[2]]
@@ -319,25 +325,25 @@ train.formula <- function(formula, covariateData, ...){
   variablesToDrop <- character(0)
   
   # yVar is a call object; as.character(yVar) will be the different components, including the parameters.
-  # if the length of yVar is > 1 then it's a function call. If the length is 1, and it's not in covariateData, 
+  # if the length of yVar is > 1 then it's a function call. If the length is 1, and it's not in data, 
   # then we also need to explicitly evaluate it
-  if(class(yVar)=="call" || !(as.character(yVar) %in% colnames(covariateData))){
+  if(class(yVar)=="call" || !(as.character(yVar) %in% colnames(data))){
     # yVar is a function like CompetingRiskResponses
-    responses <- eval(expr=yVar, envir=covariateData)
+    responses <- eval(expr=yVar, envir=data)
     
     if(class(formula[[3]]) == "name" && as.character(formula[[3]])=="."){
-      # do any of the variables match data in covariateData? We need to track that so we can drop them later
-      variablesToDrop <- as.character(yVar)[as.character(yVar) %in% names(covariateData)]
+      # do any of the variables match data in data? We need to track that so we can drop them later
+      variablesToDrop <- as.character(yVar)[as.character(yVar) %in% names(data)]
     }
     
     formula[[2]] <- NULL
 
-  } else if(class(yVar)=="name"){ # and implicitly yVar is contained in covariateData
+  } else if(class(yVar)=="name"){ # and implicitly yVar is contained in data
     variablesToDrop <- as.character(yVar)
   }
 
   # Includes responses which we may need to later cut out
-  mf <- model.frame(formula=formula, data=covariateData, na.action=na.pass)
+  mf <- model.frame(formula=formula, data=data, na.action=na.pass)
 
   if(is.null(responses)){
     responses <- model.response(mf)
@@ -349,7 +355,7 @@ train.formula <- function(formula, covariateData, ...){
   # If environment was provided instead of data
   if(!is.null(env)){
     env$data <- mf
-    rm(covariateData)
+    rm(data)
     forest <- train.default(responses, env, ...)
   } else{
     forest <- train.default(responses, mf, ...)
@@ -363,7 +369,14 @@ train.formula <- function(formula, covariateData, ...){
   return(forest)
 }
 
-createForestTrainer <- function(treeTrainer, covariateList, treeResponseCombiner, dataset, ntree, randomSeed, saveTreeLocation){
+createForestTrainer <- function(treeTrainer, 
+                                covariateList, 
+                                treeResponseCombiner, 
+                                dataset,
+                                ntree, 
+                                randomSeed, 
+                                saveTreeLocation,
+                                displayProgress){
   builderClassReturned <- makeResponse(.class_ForestTrainer_Builder)
 
   builder <- .jcall(.class_ForestTrainer, builderClassReturned, "builder")
@@ -373,7 +386,7 @@ createForestTrainer <- function(treeTrainer, covariateList, treeResponseCombiner
   builder <- .jcall(builder, builderClassReturned, "treeResponseCombiner", treeResponseCombiner$javaObject)
   builder <- .jcall(builder, builderClassReturned, "data", dataset)
   builder <- .jcall(builder, builderClassReturned, "ntree", as.integer(ntree))
-  builder <- .jcall(builder, builderClassReturned, "displayProgress", TRUE)
+  builder <- .jcall(builder, builderClassReturned, "displayProgress", displayProgress)
   
   if(!is.null(randomSeed)){
     builder <- .jcall(builder, builderClassReturned, "randomSeed", .jlong(randomSeed))

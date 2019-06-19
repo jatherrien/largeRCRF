@@ -13,9 +13,13 @@ test_that("Training with environment works", {
   e$data <- trainingData
   rm(trainingData)
   
-  forest <- train(CR_Response(delta, T) ~ x, e, ntree=50, numberOfSplits=0, mtry=1, nodeSize=5, cores=2)
+  forest <- train(CR_Response(delta, T) ~ x, e, ntree=50, numberOfSplits=0, mtry=1, nodeSize=5, cores=2, displayProgress=FALSE)
   
   expect_null(e$data)
+  
+  predictions <- predict(forest, testData)
+  
+  forest <- addTrees(forest, 50, displayProgress = FALSE)
   
   predictions <- predict(forest, testData)
   

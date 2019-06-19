@@ -1,10 +1,13 @@
-loadData <- function(data, xVarNames, responses){
+loadData <- function(data, xVarNames, responses, covariateList.java = NULL){
 
   if(class(responses) == "integer" | class(responses) == "numeric"){
     responses <- Numeric(responses)
   }
 
-  covariateList.java <- getCovariateList(data, xVarNames)
+  # connectToData provides a pre-created covariate list we can re-use
+  if(is.null(covariateList.java)){
+    covariateList.java <- getCovariateList(data, xVarNames)
+  }
   
   textColumns <- list()
   for(j in 1:length(xVarNames)){

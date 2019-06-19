@@ -43,7 +43,7 @@ loadForest <- function(directory){
   params$forestResponseCombiner$javaObject <- forestResponseCombiner.java
   
   forest <- loadForestArgumentsSpecified(directory, params$nodeResponseCombiner, params$splitFinder, params$forestResponseCombiner, covariateList, call,
-                                      params$ntree, params$numberOfSplits, params$mtry, params$nodeSize, params$maxNodeDepth, params$splitPureNodes)
+                                      params$ntree, params$numberOfSplits, params$mtry, params$nodeSize, params$maxNodeDepth, params$splitPureNodes, params$randomSeed)
   
   return(forest)
   
@@ -56,7 +56,7 @@ loadForest <- function(directory){
 # I'd appreciate knowing that someone's going to use it first (email me; see
 # README).
 loadForestArgumentsSpecified <- function(treeDirectory, nodeResponseCombiner, splitFinder, forestResponseCombiner, 
-                                 covariateList.java, call, ntree, numberOfSplits, mtry, nodeSize, maxNodeDepth = 100000, splitPureNodes=TRUE){
+                                 covariateList.java, call, ntree, numberOfSplits, mtry, nodeSize, maxNodeDepth = 100000, splitPureNodes=TRUE, randomSeed=NULL){
   
   params <- list(
     splitFinder=splitFinder,
@@ -67,7 +67,8 @@ loadForestArgumentsSpecified <- function(treeDirectory, nodeResponseCombiner, sp
     mtry=mtry,
     nodeSize=nodeSize,
     splitPureNodes=splitPureNodes,
-    maxNodeDepth = maxNodeDepth
+    maxNodeDepth=maxNodeDepth,
+    randomSeed=randomSeed
   )
   
   forest.java <- .jcall(.class_DataUtils, makeResponse(.class_Forest), "loadForest", treeDirectory, forestResponseCombiner$javaObject)
