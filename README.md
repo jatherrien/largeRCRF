@@ -1,12 +1,12 @@
 # README
 
 This R package is used to train random competing risks forests, ideally for large data.
-It's based heavily off of [randomForestSRC](https://github.com/kogalur/randomForestSRC/), although there are some differences which are described in (TODO - link to paper here).
+It's based heavily off of [randomForestSRC](https://github.com/kogalur/randomForestSRC/), although there are some differences.
 
 This package is still in a pre-release state and so it not yet available on CRAN.
 To install it now, in R install the `devtools` package and run the following command:
 ```
-R> devtools::install_git("https://git.joeltherrien.ca/joel/largeRCRF.git")
+R> devtools::install_git("https://github.com/jatherrien/largeRCRF.git")
 ```
 
 ## System Requirements
