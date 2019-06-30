@@ -4,10 +4,10 @@
 #'
 #' Predict on the random forest.
 #'
-#' @param forest A forest that was previously \code{\link{train}}ed
+#' @param object A forest that was previously \code{\link{train}}ed
 #' @param newData The new data containing all of the previous predictor
 #'   covariates. Can be NULL if you want to use the training dataset, and
-#'   \code{forest} hasn't been loaded from the disk; otherwise you'll have to
+#'   \code{object} hasn't been loaded from the disk; otherwise you'll have to
 #'   specify it.
 #' @param parallel A logical indicating whether multiple cores should be
 #'   utilized when making the predictions. Available as an option because it's
@@ -18,6 +18,8 @@
 #'   'out of bag' trees; set only to \code{TRUE} if you're running predictions
 #'   on data that was used in the training. Default value is \code{TRUE} if
 #'   \code{newData} is \code{NULL}, otherwise \code{FALSE}.
+#' @param ... Other parameters that may one day get passed onto other functions;
+#'   currently not used.
 #' @return A list of responses corresponding with each row of \code{newData} if
 #'   it's a non-regression random forest; otherwise it returns a numeric vector.
 #' @export
@@ -28,7 +30,7 @@
 #' y <- 1 + x1 + x2 + rnorm(1000)
 #'
 #' data <- data.frame(x1, x2, y)
-#' forest <- train(y ~ x1 + x2, data, ntree=100, numberOfSplits = 5, 
+#' forest <- train(y ~ x1 + x2, data, ntree=100, numberOfSplits = 5,
 #'     mtry = 1, nodeSize = 5)
 #'
 #' # Fix x2 to be 0
@@ -53,7 +55,10 @@
 #'    numberOfSplits=5, mtry=1, nodeSize=10)
 #' newData <- data.frame(x1 = c(-1, 0, 1), x2 = 0)
 #' ypred <- predict(forest, newData)
-predict.JRandomForest <- function(forest, newData=NULL, parallel=TRUE, out.of.bag=NULL){
+predict.JRandomForest <- function(object, newData=NULL, parallel=TRUE, out.of.bag=NULL, ...){
+  
+  # slight renaming
+  forest <- object
   
   if(is.null(newData) & is.null(forest$dataset)){
     stop("forest doesn't have a copy of the training data loaded (this happens if you just loaded it); please manually specify newData and possibly out.of.bag")

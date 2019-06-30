@@ -4,15 +4,15 @@
 \alias{predict.JRandomForest}
 \title{Predict}
 \usage{
-\method{predict}{JRandomForest}(forest, newData = NULL,
-  parallel = TRUE, out.of.bag = NULL)
+\method{predict}{JRandomForest}(object, newData = NULL,
+  parallel = TRUE, out.of.bag = NULL, ...)
 }
 \arguments{
-\item{forest}{A forest that was previously \code{\link{train}}ed}
+\item{object}{A forest that was previously \code{\link{train}}ed}
 
 \item{newData}{The new data containing all of the previous predictor
 covariates. Can be NULL if you want to use the training dataset, and
-\code{forest} hasn't been loaded from the disk; otherwise you'll have to
+\code{object} hasn't been loaded from the disk; otherwise you'll have to
 specify it.}
 
 \item{parallel}{A logical indicating whether multiple cores should be
@@ -25,6 +25,9 @@ get strange errors while predicting.}
 'out of bag' trees; set only to \code{TRUE} if you're running predictions
 on data that was used in the training. Default value is \code{TRUE} if
 \code{newData} is \code{NULL}, otherwise \code{FALSE}.}
+
+\item{...}{Other parameters that may one day get passed onto other functions;
+currently not used.}
 }
 \value{
 A list of responses corresponding with each row of \code{newData} if
@@ -40,7 +43,7 @@ x2 <- rnorm(1000)
 y <- 1 + x1 + x2 + rnorm(1000)
 
 data <- data.frame(x1, x2, y)
-forest <- train(y ~ x1 + x2, data, ntree=100, numberOfSplits = 5, 
+forest <- train(y ~ x1 + x2, data, ntree=100, numberOfSplits = 5,
     mtry = 1, nodeSize = 5)
 
 # Fix x2 to be 0

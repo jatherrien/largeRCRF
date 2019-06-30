@@ -47,8 +47,8 @@ extractCIF <- function (x, event) {
 }
 
 #' @export
-extractCIF.CompetingRiskFunctions <- function(prediction, event){
-  fun <- stats::stepfun(prediction$time.interest, c(0, prediction$cif[,event]))
+extractCIF.CompetingRiskFunctions <- function(x, event){
+  fun <- stats::stepfun(x$time.interest, c(0, x$cif[,event]))
   
   class(fun) <- "function"
   attr(fun, "call") <- sys.call()
@@ -56,8 +56,8 @@ extractCIF.CompetingRiskFunctions <- function(prediction, event){
 }
 
 #' @export
-extractCIF.CompetingRiskFunctions.List <- function(predictions, event){
-  return(lapply(predictions, extractCIF.CompetingRiskFunctions, event))
+extractCIF.CompetingRiskFunctions.List <- function(x, event){
+  return(lapply(x, extractCIF.CompetingRiskFunctions, event))
 }
 
 #' @rdname CompetingRiskPredictions
@@ -69,8 +69,8 @@ extractCHF <- function (x, event) {
 }
 
 #' @export
-extractCHF.CompetingRiskFunctions <- function(prediction, event){
-  fun <- stats::stepfun(prediction$time.interest, c(0, prediction$chf[,event]))
+extractCHF.CompetingRiskFunctions <- function(x, event){
+  fun <- stats::stepfun(x$time.interest, c(0, x$chf[,event]))
   
   class(fun) <- "function"
   attr(fun, "call") <- sys.call()
@@ -78,8 +78,8 @@ extractCHF.CompetingRiskFunctions <- function(prediction, event){
 }
 
 #' @export
-extractCHF.CompetingRiskFunctions.List <- function(predictions, event){
-  return(lapply(predictions, extractCHF.CompetingRiskFunctions, event))
+extractCHF.CompetingRiskFunctions.List <- function(x, event){
+  return(lapply(x, extractCHF.CompetingRiskFunctions, event))
 }
 
 
@@ -92,8 +92,8 @@ extractSurvivorCurve <- function (x) {
 }
 
 #' @export
-extractSurvivorCurve.CompetingRiskFunctions <- function(prediction){
-  fun <- stats::stepfun(prediction$time.interest, c(1, prediction$survivorCurve))
+extractSurvivorCurve.CompetingRiskFunctions <- function(x){
+  fun <- stats::stepfun(x$time.interest, c(1, x$survivorCurve))
   
   class(fun) <- "function"
   attr(fun, "call") <- sys.call()
@@ -101,8 +101,8 @@ extractSurvivorCurve.CompetingRiskFunctions <- function(prediction){
 }
 
 #' @export
-extractSurvivorCurve.CompetingRiskFunctions.List <- function(predictions){
-  return(lapply(predictions, extractSurvivorCurve.CompetingRiskFunctions))
+extractSurvivorCurve.CompetingRiskFunctions.List <- function(x){
+  return(lapply(x, extractSurvivorCurve.CompetingRiskFunctions))
 }
 
 #' @rdname CompetingRiskPredictions
@@ -115,7 +115,7 @@ extractMortalities <- function(x, event, time){
 }
 
 #' @export
-extractMortalities.CompetingRiskFunctions <- function(prediction, event, time){
+extractMortalities.CompetingRiskFunctions <- function(x, event, time){
   if(is.null(event) | anyNA(event)){
     stop("event must be specified")
   }
@@ -124,11 +124,11 @@ extractMortalities.CompetingRiskFunctions <- function(prediction, event, time){
     stop("time must be specified")
   }
   
-  return(.jcall(prediction$javaObject, "D", "calculateEventSpecificMortality", as.integer(event), time))
+  return(.jcall(x$javaObject, "D", "calculateEventSpecificMortality", as.integer(event), time))
 }
 
 #' @export
-extractMortalities.CompetingRiskFunctions.List <- function(predictions, event, time){
+extractMortalities.CompetingRiskFunctions.List <- function(x, event, time){
   if(is.null(event) | anyNA(event)){
     stop("event must be specified")
   }
@@ -137,5 +137,5 @@ extractMortalities.CompetingRiskFunctions.List <- function(predictions, event, t
     stop("time must be specified")
   }
   
-  return(as.numeric(lapply(predictions, extractMortalities.CompetingRiskFunctions, event, time)))
+  return(as.numeric(lapply(x, extractMortalities.CompetingRiskFunctions, event, time)))
 }

@@ -13,7 +13,7 @@ R> devtools::install_git("https://github.com/jatherrien/largeRCRF.git")
 
 You need:
 
-* R version 3.4.2 or greater
+* R version 3.4.0 or greater
 * The `rJava` package version 0.9-9 or greater
 * A Java runtime version 1.8 or greater
 
