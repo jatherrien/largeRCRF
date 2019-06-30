@@ -18,7 +18,7 @@ default.}
 }
 \description{
 Saves a random forest for later use, given that the base R
-\code{\link{base::save}} function doesn't work for this package.
+\code{\link[base]{save}} function doesn't work for this package.
 }
 \examples{
 # Regression Example
@@ -30,8 +30,8 @@ data <- data.frame(x1, x2, y)
 forest <- train(y ~ x1 + x2, data,
  ntree=100, numberOfSplits = 5, mtry = 1, nodeSize = 5)
 
-saveForest(forest, "trees")
-new_forest <- loadForest("trees")
+saveForest(forest, "saved_forest")
+new_forest <- loadForest("saved_forest")
 }
 \seealso{
 \code{\link{train}}, \code{\link{loadForest}}

@@ -3,7 +3,7 @@
 #' Save Random Forests
 #'
 #' Saves a random forest for later use, given that the base R
-#' \code{\link{base::save}} function doesn't work for this package.
+#' \code{\link[base]{save}} function doesn't work for this package.
 #'
 #' @param forest The forest to save.
 #' @param directory The directory that should be created to save the trees in.
@@ -24,8 +24,8 @@
 #' forest <- train(y ~ x1 + x2, data,
 #'  ntree=100, numberOfSplits = 5, mtry = 1, nodeSize = 5)
 #'
-#' saveForest(forest, "trees")
-#' new_forest <- loadForest("trees")
+#' saveForest(forest, "saved_forest")
+#' new_forest <- loadForest("saved_forest")
 saveForest <- function(forest, directory, overwrite=FALSE){
   check_and_create_directory(directory, overwrite)
   

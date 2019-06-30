@@ -7,7 +7,7 @@
 loadForest(directory)
 }
 \arguments{
-\item{forest}{The directory created that saved the previous forest.}
+\item{directory}{The directory created that saved the previous forest.}
 }
 \value{
 A JForest object; see \code{\link{train}} for details.
@@ -29,5 +29,5 @@ saveForest(forest, "trees")
 new_forest <- loadForest("trees")
 }
 \seealso{
-\code{\link{train}}, \code{\link{saveForest}}, \code{\link{loadForestArg}}
+\code{\link{train}}, \code{\link{saveForest}}
 }

@@ -2,7 +2,9 @@ context("Make sure we can save forests while training")
 
 test_that("Can save a random forest while training, and use it afterward", {
 
-  expect_false(file.exists("trees")) # Folder shouldn't exist yet
+  if(file.exists("trees")){ # folder could exist from a previous failed test; delete it
+    unlink("trees", recursive=TRUE)
+  }
   
   x1 <- rnorm(1000)
   x2 <- rnorm(1000)

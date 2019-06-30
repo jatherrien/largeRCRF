@@ -4,10 +4,10 @@
 #'
 #' Loads a random forest that was saved using \code{\link{saveForest}}.
 #'
-#' @param forest The directory created that saved the previous forest.
+#' @param directory The directory created that saved the previous forest.
 #' @return A JForest object; see \code{\link{train}} for details.
 #' @export
-#' @seealso \code{\link{train}}, \code{\link{saveForest}}, \code{\link{loadForestArg}}
+#' @seealso \code{\link{train}}, \code{\link{saveForest}}
 #' @examples
 #' # Regression Example
 #' x1 <- rnorm(1000)

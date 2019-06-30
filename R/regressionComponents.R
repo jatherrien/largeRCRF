@@ -46,15 +46,6 @@ WeightedVarianceSplitFinder <- function(){
 #' responseCombiner <- MeanResponseCombiner()
 #' # You would then use it in train()
 #'
-#' # However; I'll show an internal Java method to make it clear what it does
-#' # Note that you should never have to do the following
-#' x <- 1:3
-#' x <- largeRCRF:::convertRListToJava(Numeric(x))
-#'
-#' # will output a Java object containing 2
-#' output <- rJava::.jcall(responseCombiner$javaObject, "Ljava/lang/Double;", "combine", x)
-#' responseCombiner$convertToRFunction(output)
-#'
 MeanResponseCombiner <- function(){
   javaObject <- .jnew(.class_MeanResponseCombiner)
   javaObject <- .jcast(javaObject, .class_ResponseCombiner)

@@ -2,33 +2,24 @@
 % Please edit documentation in R/train.R
 \name{train}
 \alias{train}
-\alias{train.default}
-\alias{train.formula}
 \title{Train Random Forests}
 \usage{
-train(x, ...)
-
-\method{train}{default}(responses, covariateData,
-  splitFinder = splitFinderDefault(responses),
-  nodeResponseCombiner = nodeResponseCombinerDefault(responses),
-  forestResponseCombiner = forestResponseCombinerDefault(responses),
-  ntree, numberOfSplits, mtry, nodeSize, maxNodeDepth = 1e+05,
-  splitPureNodes = TRUE, savePath = NULL,
+train(formula, data, splitFinder = NULL, nodeResponseCombiner = NULL,
+  forestResponseCombiner = NULL, ntree, numberOfSplits, mtry, nodeSize,
+  maxNodeDepth = 1e+05, splitPureNodes = TRUE, savePath = NULL,
   savePath.overwrite = c("warn", "delete", "merge"),
   cores = getCores(), randomSeed = NULL, displayProgress = TRUE)
-
-\method{train}{formula}(formula, data, ...)
 }
 \arguments{
-\item{responses}{An R list of the responses. See \code{\link{CR_Response}}
-for an example function.}
+\item{formula}{You may specify the response and covariates as a formula
+instead; make sure the response in the formula is still properly
+constructed; see \code{responses}}
 
-\item{covariateData}{A data.frame containing only the columns of the
-covariates you wish to use in your training (not relevant if you're using
-the formula version of \code{train}).}
+\item{data}{A data.frame containing the columns of the predictors and
+responses.}
 
 \item{splitFinder}{A split finder that's used to score splits in the random
-forest training algorithm. See \code{\link{Competing Risk Split Finders}}
+forest training algorithm. See \code{\link{CompetingRiskSplitFinders}}
 or \code{\link{WeightedVarianceSplitFinder}}. If you don't specify one,
 this function tries to pick one based on the response. For
 \code{\link{CR_Response}} without censor times, it will pick a
@@ -39,19 +30,19 @@ responses it picks a \code{\link{WeightedVarianceSplitFinder}}.}
 \item{nodeResponseCombiner}{A response combiner that's used to combine
 responses for each terminal node in a tree (regression example; average the
 observations in each tree into a single number). See
-\code{\link{CompetingRiskResponseCombiner}} or
+\code{\link{CR_ResponseCombiner}} or
 \code{\link{MeanResponseCombiner}}. If you don't specify one, this function
 tries to pick one based on the response. For \code{\link{CR_Response}} it
-picks a \code{\link{CompetingRiskResponseCombiner}}; for integer or numeric
+picks a \code{\link{CR_ResponseCombiner}}; for integer or numeric
 responses it picks a \code{\link{MeanResponseCombiner}}.}
 
 \item{forestResponseCombiner}{A response combiner that's used to combine
 predictions across trees into one final result (regression example; average
 the prediction of each tree into a single number). See
-\code{\link{CompetingRiskFunctionCombiner}} or
+\code{\link{CR_FunctionCombiner}} or
 \code{\link{MeanResponseCombiner}}. If you don't specify one, this function
 tries to pick one based on the response. For \code{\link{CR_Response}} it
-picks a \code{\link{CompetingRiskFunctionCombiner}}; for integer or numeric
+picks a \code{\link{CR_FunctionCombiner}}; for integer or numeric
 responses it picks a \code{\link{MeanResponseCombiner}}.}
 
 \item{ntree}{An integer that specifies how many trees should be trained.}
@@ -113,14 +104,6 @@ deterministic forests are desired.}
 \item{displayProgress}{A logical indicating whether the progress should be
 displayed to console; default is \code{TRUE}. Useful to set to FALSE in
 some automated situations.}
-
-\item{formula}{You may specify the response and covariates as a formula
-instead; make sure the response in the formula is still properly
-constructed; see \code{responses}}
-
-\item{data}{A data.frame containing the columns of the predictors and
-responses; not relevant if you're not using the formula version of
-\code{train}.}
 }
 \value{
 A \code{JRandomForest} object. You may call \code{predict} or
@@ -153,7 +136,9 @@ x2 <- rnorm(1000)
 y <- 1 + x1 + x2 + rnorm(1000)
 
 data <- data.frame(x1, x2, y)
-forest <- train(y ~ x1 + x2, data, WeightedVarianceSplitFinder(), MeanResponseCombiner(), MeanResponseCombiner(), ntree=100, numberOfSplits = 5, mtry = 1, nodeSize = 5)
+forest <- train(y ~ x1 + x2, data, WeightedVarianceSplitFinder(),
+  MeanResponseCombiner(), MeanResponseCombiner(), ntree=100,
+  numberOfSplits = 5, mtry = 1, nodeSize = 5)
 
 # Fix x2 to be 0
 newData <- data.frame(x1 = seq(from=-2, to=2, by=0.5), x2 = 0)
@@ -174,7 +159,9 @@ delta <- ifelse(u==T1, 1, ifelse(u==T2, 2, 0))
 data <- data.frame(x1, x2)
 
 forest <- train(CR_Response(delta, u) ~ x1 + x2, data,
-LogRankSplitFinder(1:2), CR_kResponseCombiner(1:2), CR_FunctionCombiner(1:2), ntree=100, numberOfSplits=5, mtry=1, nodeSize=10)
+   LogRankSplitFinder(1:2), CR_ResponseCombiner(1:2),
+   CR_FunctionCombiner(1:2), ntree=100, numberOfSplits=5, 
+   mtry=1, nodeSize=10)
 newData <- data.frame(x1 = c(-1, 0, 1), x2 = 0)
 ypred <- predict(forest, newData)
 }

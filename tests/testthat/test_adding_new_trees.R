@@ -22,7 +22,9 @@ test_that("Can add trees on existing forest", {
 
 test_that("Test adding trees on saved forest - using delete", {
   
-  expect_false(file.exists("trees")) # Folder shouldn't exist yet
+  if(file.exists("trees")){ # folder could exist from a previous failed test; delete it
+    unlink("trees", recursive=TRUE)
+  }
   
   trainingData <- data.frame(x=rnorm(100))
   trainingData$T <- rexp(100) + abs(trainingData$x)
@@ -45,7 +47,9 @@ test_that("Test adding trees on saved forest - using delete", {
 
 test_that("Test adding trees on saved forest - using merge", {
   
-  expect_false(file.exists("trees")) # Folder shouldn't exist yet
+  if(file.exists("trees")){ # folder could exist from a previous failed test; delete it
+    unlink("trees", recursive=TRUE)
+  }
   
   trainingData <- data.frame(x=rnorm(100))
   trainingData$T <- rexp(100) + abs(trainingData$x)

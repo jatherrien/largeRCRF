@@ -48,7 +48,7 @@ extractCIF <- function (x, event) {
 
 #' @export
 extractCIF.CompetingRiskFunctions <- function(prediction, event){
-  fun <- stepfun(prediction$time.interest, c(0, prediction$cif[,event]))
+  fun <- stats::stepfun(prediction$time.interest, c(0, prediction$cif[,event]))
   
   class(fun) <- "function"
   attr(fun, "call") <- sys.call()
@@ -70,7 +70,7 @@ extractCHF <- function (x, event) {
 
 #' @export
 extractCHF.CompetingRiskFunctions <- function(prediction, event){
-  fun <- stepfun(prediction$time.interest, c(0, prediction$chf[,event]))
+  fun <- stats::stepfun(prediction$time.interest, c(0, prediction$chf[,event]))
   
   class(fun) <- "function"
   attr(fun, "call") <- sys.call()
@@ -93,7 +93,7 @@ extractSurvivorCurve <- function (x) {
 
 #' @export
 extractSurvivorCurve.CompetingRiskFunctions <- function(prediction){
-  fun <- stepfun(prediction$time.interest, c(1, prediction$survivorCurve))
+  fun <- stats::stepfun(prediction$time.interest, c(1, prediction$survivorCurve))
   
   class(fun) <- "function"
   attr(fun, "call") <- sys.call()

@@ -40,7 +40,8 @@ x2 <- rnorm(1000)
 y <- 1 + x1 + x2 + rnorm(1000)
 
 data <- data.frame(x1, x2, y)
-forest <- train(y ~ x1 + x2, data, ntree=100, numberOfSplits = 5, mtry = 1, nodeSize = 5)
+forest <- train(y ~ x1 + x2, data, ntree=100, numberOfSplits = 5, 
+    mtry = 1, nodeSize = 5)
 
 # Fix x2 to be 0
 newData <- data.frame(x1 = seq(from=-2, to=2, by=0.5), x2 = 0)
@@ -60,7 +61,8 @@ delta <- ifelse(u==T1, 1, ifelse(u==T2, 2, 0))
 
 data <- data.frame(x1, x2)
 
-forest <- train(CR_Response(delta, u) ~ x1 + x2, data, ntree=100, numberOfSplits=5, mtry=1, nodeSize=10)
+forest <- train(CR_Response(delta, u) ~ x1 + x2, data, ntree=100,
+   numberOfSplits=5, mtry=1, nodeSize=10)
 newData <- data.frame(x1 = c(-1, 0, 1), x2 = 0)
 ypred <- predict(forest, newData)
 }

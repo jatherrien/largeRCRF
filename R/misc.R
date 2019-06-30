@@ -78,10 +78,10 @@ plot.JMatrixPlottable <- function(mat, add=FALSE, type="s", xlab="Time", ylab=NU
 
     }
 
-    plot(mat[,2] ~ mat[,1], col=col, type=type, xlab=xlab, ylab=ylab, ...)
+    graphics::plot(mat[,2] ~ mat[,1], col=col, type=type, xlab=xlab, ylab=ylab, ...)
   }
   else{
-    points(mat[,2] ~ mat[,1], col=col, type=type, xlab=xlab, ylab=ylab, ...)
+    graphics::points(mat[,2] ~ mat[,1], col=col, type=type, xlab=xlab, ylab=ylab, ...)
   }
 
 }
