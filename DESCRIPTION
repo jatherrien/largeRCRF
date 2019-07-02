@@ -6,8 +6,8 @@ Authors@R: c(
     person("Joel", "Therrien", email = "joel_therrien@sfu.ca", role = c("aut", "cre", "cph")),
     person("Jiguo", "Cao", email = "jiguo_cao@sfu.ca", role = c("aut", "dgs"))
     )
-Description: This package is used for training competing risk random forests on larger scale datasets. 
-    It currently supports training models, running predictions, plotting those predictions (they are curves),
+Description: Used for training competing risk random forests on larger scale datasets. 
+    It currently supports training models, running predictions, plotting those predictions,
     and some simple error analysis using concordance measures.
 License: GPL-3
 Copyright: All provided source code is copyrighted and owned by Joel Therrien. 
