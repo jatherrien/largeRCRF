@@ -11,9 +11,7 @@ Description: Used for training competing risk random forests on larger scale dat
     and some simple error analysis using concordance measures.
 License: GPL-3
 Copyright: All provided source code is copyrighted and owned by Joel Therrien. 
-     There are two dependencies (partially provided) used in the Java code; both
-     of which are licensed under the Apache 2.0 License. Please see the NOTICE
-     file for more information.
+     Please see the COPYING file for the terms of the GPL-3 license.
 Encoding: UTF-8
 LazyData: true
 Imports:
