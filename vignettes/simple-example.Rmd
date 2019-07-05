@@ -55,7 +55,7 @@ We specify `splitFinder = LogRankSplitFinder(1:2, 2)`, which indicates that we h
 
 We specify that we want a forest of 100 trees (`ntree = 100`), that we want to try all possible splits when trying to split on a variable (`numberOfSplits = 0`), that we want to try splitting on two predictors at a time (`mtry = 2`), and that the terminal nodes should have an average size of at minimum 15 (`nodeSize = 15`; accomplished by not splitting any nodes with size less than 2 $\times$ `nodeSize`). `randomSeed = 15` specifies a seed so that the results are deterministic; note that **largeRCRF** generates random numbers separately from R and so is not affected by `set.seed()`.
 
-Printing `model` on its own doesn't really do much except print the different components and parameters that made the forest.
+Printing `model` on its own doesn't do much except print the different components and parameters that made the forest.
 
 ```{r}
 model
@@ -67,7 +67,7 @@ Next we'll make predictions on the training data. Since we're using the training
 predictions <- predict(model)
 ```
 
-Since our data is competing risks data, our responses are several functions which can't really be printed on screen. Instead a message lets us know of several functions which can let us extract the estimate of the survivor curve, the cause-specific cumulative incidence functions, or the cause-specific cumulative hazard functions (CHF).
+Since our data is competing risks data, our responses are several functions which can't be printed on screen. Instead a message lets us know of several functions which can let us extract the estimate of the survivor curve, the cause-specific cumulative incidence functions, or the cause-specific cumulative hazard functions (CHF).
 
 ```{r}
 predictions[[1]]
