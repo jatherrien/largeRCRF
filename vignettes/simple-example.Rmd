@@ -1,0 +1,106 @@
+---
+title: "Simple example of using largeRCRF"
+author: "Joel Therrien & Jiguo Cao"
+output: rmarkdown::html_vignette
+bibliography: refs.bib
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This is a quick example of running **largeRCRF** on a dataset, extracting some predictions from it, and calculating a measure of concordance error.
+
+## Source
+
+The dataset originally comes from the *Women's Interagency HIV Study* [@wihs], but was obtained through the **randomForestSRC** [@IshwaranRfsrc] package.
+
+## Background
+
+The *Women's Interagency HIV Study* is a dataset that followed HIV positive women and recorded when one of three possible competing events occurred for each one:
+
+* The woman began treatment for HIV.
+* The woman developed AIDS or died.
+* The woman was censored for administrative reasons.
+
+There are four different predictors available (age, history of drug injections, race, and a blood count of a type of white blood cells).
+
+## Getting the data
+
+```{r}
+data(wihs, package = "largeRCRF")
+names(wihs)
+```
+
+`time` & `status` are two columns in `wihs` corresponding to the competing risks response, while `ageatfda`, `idu`, `black`, and `cd4nadir` are the different predictors we wish to train on. 
+
+We train a forest by calling `train`.
+
+```{r}
+library("largeRCRF")
+model <- train(CR_Response(status, time) ~ ageatfda + idu + black + cd4nadir,
+               data = wihs, splitFinder = LogRankSplitFinder(1:2, 2), 
+               ntree = 100, numberOfSplits = 0, mtry = 2, nodeSize = 15,
+               randomSeed = 15)
+```
+
+We specify `splitFinder = LogRankSplitFinder(1:2, 2)`, which indicates that we have event codes 1 to 2 to handle, but that we want to focus on optimizing splits for event 2 (which corresponds to when AIDS develops).
+
+We specify that we want a forest of 100 trees (`ntree = 100`), that we want to try all possible splits when trying to split on a variable (`numberOfSplits = 0`), that we want to try splitting on two predictors at a time (`mtry = 2`), and that the terminal nodes should have an average size of at minimum 15 (`nodeSize = 15`; accomplished by not splitting any nodes with size less than 2 $\times$ `nodeSize`). `randomSeed = 15` specifies a seed so that the results are deterministic; note that **largeRCRF** generates random numbers separately from R and so is not affected by `set.seed()`.
+
+Printing `model` on its own doesn't really do much except print the different components and parameters that made the forest.
+
+```{r}
+model
+```
+
+Next we'll make predictions on the training data. Since we're using the training data, **largeRCRF** will by default only predict each observation using trees where that observation wasn't included in the bootstrap sample ('out-of-bag' predictions).
+
+```{r}
+predictions <- predict(model)
+```
+
+Since our data is competing risks data, our responses are several functions which can't really be printed on screen. Instead a message lets us know of several functions which can let us extract the estimate of the survivor curve, the cause-specific cumulative incidence functions, or the cause-specific cumulative hazard functions (CHF).
+
+```{r}
+predictions[[1]]
+```
+
+
+Here we extract the cause-specific functions for the AIDS event, as well as the overall survivor curve.
+
+```{r}
+aids.cifs = extractCIF(predictions, event = 2)
+aids.chfs = extractCHF(predictions, event = 2)
+survivor.curves = extractSurvivorCurve(predictions)
+```
+
+Now we plot some of the functions that we extracted.
+
+```{r}
+curve(aids.cifs[[3]](x), from=0, to=8, ylim=c(0,1),
+       type="S", ylab="CIF(t)", xlab="Time (t)")
+        
+curve(aids.chfs[[3]](x), from=0, to=8, 
+       type="S", ylab="CHF(t)", xlab="Time (t)")
+```
+
+Finally, we calculate the naive concordance error on the out-of-bag predictions. `extractMortalities` calculates a measure of mortality by integrating the specified event's cumulative incidence function from 0 to `time`, although users are free to substitute their own measures if desired. `naiveConcordance` then takes the true responses and compares them with the mortality predictions provided, estimating the proportion of wrong predictions for each event as described by @WolbersConcordanceCompetingRisks.
+
+```{r}
+mortalities1 <- extractMortalities(predictions, time = 8, event = 1)
+mortalities2 <- extractMortalities(predictions, time = 8, event = 2)
+naiveConcordance(CR_Response(wihs$status, wihs$time), 
+               list(mortalities1, mortalities2))
+```
+
+We could continue by trying another model to see if we could lower the concordance error, or by integrating the above steps into some tuning algorithm.
+
+## References
