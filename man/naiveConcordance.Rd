@@ -41,3 +41,9 @@ mortalities <- list(
 naiveConcordance(CR_Response(newData$delta, newData$T), mortalities)
 
 }
+\references{
+Section 3.2 of Wolbers, Marcel, Paul Blanche, Michael T. Koller,
+  Jacqueline C M Witteman, and Thomas A Gerds. 2014. “Concordance for
+  Prognostic Models with Competing Risks.” Biostatistics 15 (3): 526–39.
+  https://doi.org/10.1093/biostatistics/kxt059.
+}

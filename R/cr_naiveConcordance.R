@@ -16,19 +16,24 @@
 #'   list should correspond to one of the events in the order of event 1 to J,
 #'   and should be a vector of the same length as responses.
 #' @export
+#' @references Section 3.2 of Wolbers, Marcel, Paul Blanche, Michael T. Koller,
+#'   Jacqueline C M Witteman, and Thomas A Gerds. 2014. “Concordance for
+#'   Prognostic Models with Competing Risks.” Biostatistics 15 (3): 526–39.
+#'   https://doi.org/10.1093/biostatistics/kxt059.
+#'
 #' @examples
 #' data <- data.frame(delta=c(1,1,0,0,2,2), T=1:6, x=1:6)
-#' 
+#'
 #' model <- train(CR_Response(delta, T) ~ x, data, ntree=100, numberOfSplits=0, mtry=1, nodeSize=1)
-#' 
+#'
 #' newData <- data.frame(delta=c(1,0,2,1,0,2), T=1:6, x=1:6)
 #' predictions <- predict(model, newData)
-#' 
+#'
 #' mortalities <- list(
 #'   extractMortalities(predictions, 1, 6),
 #'   extractMortalities(predictions, 2, 6)
 #' )
-#' 
+#'
 #' naiveConcordance(CR_Response(newData$delta, newData$T), mortalities)
 #' 
 naiveConcordance <- function(responses, predictedMortalities){

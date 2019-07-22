@@ -25,9 +25,13 @@ time may also be censored.
 }
 \references{
 Bacon MC, von Wyl V, Alden C, Sharp G, Robison E, Hessol N, Gange
-  S, Barranday Y, Holman S, Weber K, Young MA (2005). “The Women’s
-  Interagency HIV Study: an Observational Cohort Brings Clinical Sciences to
-  the Bench.” Clinical and Vaccine Immunology, 12(9), 1013–1019.
-  doi:10.1128/CDLI.12.9.1013-1019.2005.
+S, Barranday Y, Holman S, Weber K, Young MA (2005). “The Women’s Interagency
+HIV Study: an Observational Cohort Brings Clinical Sciences to the Bench.”
+Clinical and Vaccine Immunology, 12(9), 1013–1019.
+doi:10.1128/CDLI.12.9.1013-1019.2005.
+
+Ishwaran, H., and Udaya B. Kogalur. 2018. Random Forests for Survival,
+Regression, and Classification (Rf-Src). manual.
+https://cran.r-project.org/package=randomForestSRC.
 }
 \keyword{datasets}
