@@ -14,8 +14,8 @@ addTrees(forest, numTreesToAdd, savePath = NULL,
 \item{numTreesToAdd}{The number of trees to add.}
 
 \item{savePath}{If saving the forest, the directory to save to. Default is
-\code{NULL}. Note that you need to respecify the path if you're modifying a
-previously saved forest.}
+\code{NULL}. Note that you need to re-specify the path if you're modifying
+a previously saved forest.}
 
 \item{savePath.overwrite}{If \code{savePath} is pointing to an existing
 directory, possibly containing another forest, this specifies what should

@@ -8,7 +8,7 @@
 #'
 #' @param delta A vector of integers detailing the event that occurred. A value
 #'   of 0 denotes that censoring occurred first and that time was recorded.
-#' @param u A vector of numerics detailing the recorded event times (possibly
+#' @param u A numeric vector detailing the recorded event times (possibly
 #'   censored).
 #' @param C If the censoring times are known for all observations, they can be
 #'   included which allows for \code{\link{GrayLogRankSplitFinder}} to be used.

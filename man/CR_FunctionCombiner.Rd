@@ -7,7 +7,7 @@
 CR_FunctionCombiner(events, times = NULL)
 }
 \arguments{
-\item{events}{A vector of integers specifying which competing risk events's
+\item{events}{A vector of integers specifying which competing risks event
 functions should be processed. This should correspond to all of the
 competing risk events that can occur, from 1 to the largest number.}
 
