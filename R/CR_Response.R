@@ -38,6 +38,51 @@ CR_Response <- function(delta, u, C = NULL){
 }
 
 
+# This function is useful is we ever want to do something like CR_Response(c(1,1,2), c(0.1,0.2,0.3))[1]
+#' @export
+"[.CompetingRiskResponses" <- function(object, indices){
+  newList <- list(
+    eventIndicator = object$eventIndicator[indices],
+    eventTime = object$eventTime[indices]
+    )
+  
+  previous.java.list <- object$javaObject
+  
+  new.java.list <- .jcall(.class_RUtils,
+                          makeResponse(.class_List),
+                          "produceSublist",
+                          previous.java.list,
+                          .jarray(as.integer(indices - 1)))
+  
+  newList$javaObject <- new.java.list
+  
+  class(newList) <- "CompetingRiskResponses"
+  return(newList)
+}
+
+# This function is useful is we ever want to do something like CR_Response(c(1,1,2), c(0.1,0.2,0.3), c(2,3,4))[1]
+#' @export
+"[.CompetingRiskResponsesWithCensorTimes" <- function(object, indices){
+  newList <- list(
+    eventIndicator = object$eventIndicator[indices],
+    eventTime = object$eventTime[indices],
+    censorTime = object$censorTime[indices]
+    )
+  
+  previous.java.list <- object$javaObject
+  
+  new.java.list <- .jcall(.class_RUtils,
+                          makeResponse(.class_List),
+                          "produceSublist",
+                          previous.java.list,
+                          .jarray(as.integer(indices - 1)))
+  
+  newList$javaObject <- new.java.list
+  
+  class(newList) <- "CompetingRiskResponsesWithCensorTimes"
+  return(newList)
+}
+
 # Internal function
 Java_CompetingRiskResponses <- function(delta, u){
   

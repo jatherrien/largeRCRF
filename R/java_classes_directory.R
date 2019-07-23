@@ -14,11 +14,14 @@
 # Utility Classes
 .class_DataUtils <- "ca/joeltherrien/randomforest/utils/DataUtils"
 .class_RUtils <- "ca/joeltherrien/randomforest/utils/RUtils"
+.class_Utils <- "ca/joeltherrien/randomforest/utils/Utils"
 .class_CompetingRiskUtils <- "ca/joeltherrien/randomforest/responses/competingrisk/CompetingRiskUtils"
 .class_Settings <- "ca/joeltherrien/randomforest/Settings"
 
 # Misc. Classes
 .class_RightContinuousStepFunction <- "ca/joeltherrien/randomforest/utils/RightContinuousStepFunction"
+.class_CompetingRiskResponse <- "ca/joeltherrien/randomforest/responses/competingrisk/CompetingRiskResponse"
+.class_CompetingRiskResponseWithCensorTime <- "ca/joeltherrien/randomforest/responses/competingrisk/CompetingRiskResponseWithCensorTime"
 
  # TreeTrainer & its Builder
 .class_TreeTrainer <- "ca/joeltherrien/randomforest/tree/TreeTrainer"
@@ -50,12 +53,12 @@
 .class_LogRankSplitFinder <- "ca/joeltherrien/randomforest/responses/competingrisk/splitfinder/LogRankSplitFinder"
 .class_WeightedVarianceSplitFinder <- "ca/joeltherrien/randomforest/responses/regression/WeightedVarianceSplitFinder"
 
-.object_Optional <- function(forest=NULL){
-  if(is.null(forest)){
+.object_Optional <- function(object=NULL){
+  if(is.null(object)){
     return(.jcall("java/util/Optional", "Ljava/util/Optional;", "empty"))
   } else{
-    forest <- .jcast(forest, .class_Object)
-    return(.jcall("java/util/Optional", "Ljava/util/Optional;", "of", forest))
+    object <- .jcast(object, .class_Object)
+    return(.jcall("java/util/Optional", "Ljava/util/Optional;", "of", object))
   }
   
 }
