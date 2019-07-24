@@ -1,7 +1,10 @@
 
 #' Numeric
 #'
-#' An internal function that converts an R vector of numerics or integers into an R list containing java.lang.Double objects. This method does not need to be used directly by the user, as \code{\link{train}} will automatically handle numeric responses if you're working in the regression settings.
+#' An internal function that converts an R vector of numerics or integers into
+#' an R list containing java.lang.Double objects. This method does not need to
+#' be used directly by the user, as \code{\link{train}} will automatically
+#' handle numeric responses if you're working in the regression settings.
 #' @param y The R vector of numbers
 #' @export
 #' @return An R list containing rJava Doubles.

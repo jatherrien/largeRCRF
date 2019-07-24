@@ -2,4 +2,4 @@ The Java source code for this package can be obtained at https://github.com/jath
 
 * Delete the Jar file in `inst/java/`
 * Build the Java code in its own separate directory using `mvn clean package` in the root of the directory (same folder containing `README.md`). Make sure you have [Maven](https://maven.apache.org/) installed.
-* Copy the `library/target/largeRCRF-library/1.0-SNAPSHOT.jar` file produced in the Java directory into `inst/java/`
+* Copy the `library/target/largeRCRF-library-1.0-SNAPSHOT.jar` file produced in the Java directory into `inst/java/`

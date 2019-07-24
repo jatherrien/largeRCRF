@@ -9,8 +9,8 @@
 #' @param forest An existing forest.
 #' @param numTreesToAdd The number of trees to add.
 #' @param savePath If saving the forest, the directory to save to. Default is
-#'   \code{NULL}. Note that you need to respecify the path if you're modifying a
-#'   previously saved forest.
+#'   \code{NULL}. Note that you need to re-specify the path if you're modifying
+#'   a previously saved forest.
 #' @param savePath.overwrite If \code{savePath} is pointing to an existing
 #'   directory, possibly containing another forest, this specifies what should
 #'   be done.

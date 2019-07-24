@@ -10,7 +10,7 @@
 #' The user only needs to pass this object into \code{\link{train}} as the
 #' \code{forestResponseCombiner} parameter.
 #'
-#' @param events A vector of integers specifying which competing risk events's
+#' @param events A vector of integers specifying which competing risks event
 #'   functions should be processed. This should correspond to all of the
 #'   competing risk events that can occur, from 1 to the largest number.
 #' @param times An optional numeric vector that forces the output functions to
@@ -66,7 +66,7 @@ CR_FunctionCombiner <- function(events, times = NULL){
 #' The user only needs to pass this object into \code{\link{train}} as the
 #' \code{nodeResponseCombiner} parameter.
 #'
-#' @param events A vector of integers specifying which competing risk events's
+#' @param events A vector of integers specifying which competing risks event
 #'   functions should be processed. This should correspond to all of the
 #'   competing risk events that can occur, from 1 to the largest number.
 #' @export

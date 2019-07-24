@@ -10,7 +10,7 @@ CR_Response(delta, u, C = NULL)
 \item{delta}{A vector of integers detailing the event that occurred. A value
 of 0 denotes that censoring occurred first and that time was recorded.}
 
-\item{u}{A vector of numerics detailing the recorded event times (possibly
+\item{u}{A numeric vector detailing the recorded event times (possibly
 censored).}
 
 \item{C}{If the censoring times are known for all observations, they can be

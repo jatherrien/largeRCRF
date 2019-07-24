@@ -48,6 +48,10 @@ extractCIF <- function (x, event) {
 
 #' @export
 extractCIF.CompetingRiskFunctions <- function(x, event){
+  if(is.null(event) | anyNA(event)){
+    stop("event must be specified")
+  }
+  
   fun <- stats::stepfun(x$time.interest, c(0, x$cif[,event]))
   
   class(fun) <- "function"
@@ -57,6 +61,10 @@ extractCIF.CompetingRiskFunctions <- function(x, event){
 
 #' @export
 extractCIF.CompetingRiskFunctions.List <- function(x, event){
+  if(is.null(event) | anyNA(event)){
+    stop("event must be specified")
+  }
+  
   return(lapply(x, extractCIF.CompetingRiskFunctions, event))
 }
 
@@ -70,6 +78,10 @@ extractCHF <- function (x, event) {
 
 #' @export
 extractCHF.CompetingRiskFunctions <- function(x, event){
+  if(is.null(event) | anyNA(event)){
+    stop("event must be specified")
+  }
+  
   fun <- stats::stepfun(x$time.interest, c(0, x$chf[,event]))
   
   class(fun) <- "function"
@@ -79,6 +91,10 @@ extractCHF.CompetingRiskFunctions <- function(x, event){
 
 #' @export
 extractCHF.CompetingRiskFunctions.List <- function(x, event){
+  if(is.null(event) | anyNA(event)){
+    stop("event must be specified")
+  }
+  
   return(lapply(x, extractCHF.CompetingRiskFunctions, event))
 }
 
