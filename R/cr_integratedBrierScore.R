@@ -81,7 +81,7 @@ integratedBrierScore <- function(responses, predictions, event, time, censoringD
       java.censoringDistribution <- createRightContinuousStepFunction(censoringDistribution$x, censoringDistribution$y, defaultY = 1.0)
       
     } else if("stepfun" %in% class(censoringDistribution)){
-      x <- knots(censoringDistribution)
+      x <- stats::knots(censoringDistribution)
       y <- censoringDistribution(x)
       
       java.censoringDistribution <- createRightContinuousStepFunction(x, y, defaultY = 1.0)

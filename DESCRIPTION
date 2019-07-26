@@ -15,7 +15,8 @@ Copyright: All provided source code is copyrighted and owned by Joel Therrien.
 Encoding: UTF-8
 LazyData: true
 Imports:
-    rJava (>= 0.9-9)
+    rJava (>= 0.9-9),
+    stats (>= 3.4.0)
 Suggests:
     parallel,
     testthat,
