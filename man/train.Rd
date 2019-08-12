@@ -13,7 +13,7 @@ train(formula, data, splitFinder = NULL, nodeResponseCombiner = NULL,
 \arguments{
 \item{formula}{You may specify the response and covariates as a formula
 instead; make sure the response in the formula is still properly
-constructed; see \code{responses}}
+constructed.}
 
 \item{data}{A data.frame containing the columns of the predictors and
 responses.}

@@ -14,7 +14,7 @@ getCores <- function(){
   return(cores)
 }
 
-train.internal <- function(responses, covariateData, splitFinder, 
+train.internal <- function(dataset, splitFinder, 
                            nodeResponseCombiner, forestResponseCombiner, ntree, 
                            numberOfSplits, mtry, nodeSize, maxNodeDepth, 
                            splitPureNodes, savePath, savePath.overwrite, 
@@ -52,15 +52,15 @@ train.internal <- function(responses, covariateData, splitFinder,
   }
   
   if(is.null(splitFinder)){
-    splitFinder <- splitFinderDefault(responses)
+    splitFinder <- splitFinderDefault(dataset$responses)
   }
   
   if(is.null(nodeResponseCombiner)){
-    nodeResponseCombiner <- nodeResponseCombinerDefault(responses)
+    nodeResponseCombiner <- nodeResponseCombinerDefault(dataset$responses)
   }
   
   if(is.null(forestResponseCombiner)){
-    forestResponseCombiner <- forestResponseCombinerDefault(responses)
+    forestResponseCombiner <- forestResponseCombinerDefault(dataset$responses)
   }
   
 
@@ -74,20 +74,6 @@ train.internal <- function(responses, covariateData, splitFinder,
   if(class(forestResponseCombiner) != "ResponseCombiner"){
     stop("forestResponseCombiner must be a ResponseCombiner")
   }
-  
-  if(class(covariateData)=="environment"){
-    if(is.null(covariateData$data)){
-      stop("When providing an environment with the dataset, the environment must contain an item called 'data'")
-    }
-    dataset <- loadData(covariateData$data, colnames(covariateData$data), responses)
-    covariateData$data <- NULL # save memory, hopefully
-    gc() # explicitly try to save memory
-  }
-  else{
-    dataset <- loadData(covariateData, colnames(covariateData), responses)
-  }
-
-  
   
   treeTrainer <- createTreeTrainer(responseCombiner=nodeResponseCombiner,
                                    splitFinder=splitFinder,
@@ -188,7 +174,7 @@ train.internal <- function(responses, covariateData, splitFinder,
 #'
 #' @param formula You may specify the response and covariates as a formula
 #'   instead; make sure the response in the formula is still properly
-#'   constructed; see \code{responses}
+#'   constructed.
 #' @param data A data.frame containing the columns of the predictors and
 #'   responses.
 #' @param splitFinder A split finder that's used to score splits in the random
@@ -314,74 +300,16 @@ train <- function(formula, data, splitFinder = NULL, nodeResponseCombiner = NULL
                   savePath.overwrite=c("warn", "delete", "merge"), cores = getCores(),
                   randomSeed = NULL, displayProgress = TRUE){
   
-  # Having an R copy of the data loaded at the same time can be wasteful; we
-  # also allow users to provide an environment of the data which gets removed
-  # after being imported into Java
-  env <- NULL
-  if(class(data) == "environment"){
-    if(is.null(data$data)){
-      stop("When providing an environment with the dataset, the environment must contain an item called 'data'")
-    }
-    
-    env <- data
-    data <- env$data
-  }
-
-  yVar <- formula[[2]]
-
-  responses <- NULL
-  variablesToDrop <- character(0)
+  dataset <- processFormula(formula, data)
   
-  # yVar is a call object; as.character(yVar) will be the different components, including the parameters.
-  # if the length of yVar is > 1 then it's a function call. If the length is 1, and it's not in data, 
-  # then we also need to explicitly evaluate it
-  if(class(yVar)=="call" || !(as.character(yVar) %in% colnames(data))){
-    # yVar is a function like CompetingRiskResponses
-    responses <- eval(expr=yVar, envir=data)
-    
-    if(class(formula[[3]]) == "name" && as.character(formula[[3]])=="."){
-      # do any of the variables match data in data? We need to track that so we can drop them later
-      variablesToDrop <- as.character(yVar)[as.character(yVar) %in% names(data)]
-    }
-    
-    formula[[2]] <- NULL
-
-  } else if(class(yVar)=="name"){ # and implicitly yVar is contained in data
-    variablesToDrop <- as.character(yVar)
-  }
-
-  # Includes responses which we may need to later cut out
-  mf <- stats::model.frame(formula=formula, data=data, na.action=stats::na.pass)
-
-  if(is.null(responses)){
-    responses <- stats::model.response(mf)
-  }
-
-  # remove any response variables
-  mf <- mf[,!(names(mf) %in% variablesToDrop), drop=FALSE]
-  
-  # If environment was provided instead of data
-  if(!is.null(env)){
-    env$data <- mf
-    rm(data)
-    forest <- train.internal(responses, env, splitFinder = splitFinder,
-                             nodeResponseCombiner = nodeResponseCombiner,
-                             forestResponseCombiner = forestResponseCombiner,
-                             ntree = ntree, numberOfSplits = numberOfSplits,
-                             mtry = mtry, nodeSize = nodeSize, maxNodeDepth = maxNodeDepth,
-                             splitPureNodes = splitPureNodes, savePath = savePath,
-                             savePath.overwrite = savePath.overwrite, cores = cores,
-                             randomSeed = randomSeed, displayProgress = displayProgress)
-  } else{
-    forest <- train.internal(responses, mf, splitFinder = splitFinder,
-                             nodeResponseCombiner = nodeResponseCombiner,
-                             forestResponseCombiner = forestResponseCombiner,
-                             ntree = ntree, numberOfSplits = numberOfSplits,
-                             mtry = mtry, nodeSize = nodeSize, maxNodeDepth = maxNodeDepth,
-                             splitPureNodes = splitPureNodes, savePath = savePath,
-                             savePath.overwrite = savePath.overwrite, cores = cores,
-                             randomSeed = randomSeed, displayProgress = displayProgress)
-  }
+  forest <- train.internal(dataset, splitFinder = splitFinder,
+                           nodeResponseCombiner = nodeResponseCombiner,
+                           forestResponseCombiner = forestResponseCombiner,
+                           ntree = ntree, numberOfSplits = numberOfSplits,
+                           mtry = mtry, nodeSize = nodeSize, maxNodeDepth = maxNodeDepth,
+                           splitPureNodes = splitPureNodes, savePath = savePath,
+                           savePath.overwrite = savePath.overwrite, cores = cores,
+                           randomSeed = randomSeed, displayProgress = displayProgress)
   
   forest$call <- match.call()
   forest$formula <- formula

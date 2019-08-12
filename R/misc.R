@@ -14,6 +14,23 @@ convertRListToJava <- function(lst){
   return(javaList)
 }
 
+#Internal function
+convertJavaListToR <- function(javaList, class = .class_Object){
+  lst <- list()
+  
+  javaList.length <- .jcall(javaList, "I", "size")
+  
+  for(i in 0:(javaList.length - 1)){
+    object <- .jcall(javaList, makeResponse(.class_Object), "get", as.integer(i))
+    object <- .jcast(object, class)
+    
+    lst[[i+1]] <- object
+  }
+  
+  return(lst)
+  
+}
+
 #' @export
 print.SplitFinder = function(x, ...) print(x$call)
 

@@ -18,7 +18,7 @@ loadData <- function(data, xVarNames, responses, covariateList.java = NULL){
   rowList <- .jcall(.class_RUtils, makeResponse(.class_List), "importDataWithResponses",
                     responses$javaObject, covariateList.java, textData)
 
-  return(list(covariateList=covariateList.java, dataset=rowList))
+  return(list(covariateList = covariateList.java, dataset = rowList, responses = responses))
 
 }
 
@@ -54,15 +54,7 @@ getCovariateList <- function(data, xvarNames){
 
 loadPredictionData <- function(newData, covariateList.java){
   
-  xVarNames <- character(.jcall(covariateList.java, "I", "size"))
-  for(j in 1:length(xVarNames)){
-    covariate.java <- .jcast(
-      .jcall(covariateList.java, makeResponse(.class_Object), "get", as.integer(j-1)),
-      .class_Covariate
-    )
-    
-    xVarNames[j] <- .jcall(covariate.java, makeResponse(.class_String), "getName")
-  }
+  xVarNames <- extractCovariateNamesFromJavaList(covariateList.java)
   
   if(any(!(xVarNames %in% names(newData)))){
     varsMissing = xVarNames[!(xVarNames %in% names(newData))]
@@ -84,3 +76,16 @@ loadPredictionData <- function(newData, covariateList.java){
   return(rowList)
 }
 
+extractCovariateNamesFromJavaList <- function(covariateList.java){
+  xVarNames <- character(.jcall(covariateList.java, "I", "size"))
+  for(j in 1:length(xVarNames)){
+    covariate.java <- .jcast(
+      .jcall(covariateList.java, makeResponse(.class_Object), "get", as.integer(j-1)),
+      .class_Covariate
+    )
+    
+    xVarNames[j] <- .jcall(covariate.java, makeResponse(.class_String), "getName")
+  }
+  
+  return(xVarNames)
+}

@@ -10,6 +10,7 @@
 .class_Collection <- "java/util/Collection"
 .class_Serializable <- "java/io/Serializable"
 .class_File <- "java/io/File"
+.class_Random <- "java/util/Random"
 
 # Utility Classes
 .class_DataUtils <- "ca/joeltherrien/randomforest/utils/DataUtils"
@@ -52,6 +53,14 @@
 .class_GrayLogRankSplitFinder <- "ca/joeltherrien/randomforest/responses/competingrisk/splitfinder/GrayLogRankSplitFinder"
 .class_LogRankSplitFinder <- "ca/joeltherrien/randomforest/responses/competingrisk/splitfinder/LogRankSplitFinder"
 .class_WeightedVarianceSplitFinder <- "ca/joeltherrien/randomforest/responses/regression/WeightedVarianceSplitFinder"
+
+# VIMP classes
+.class_IBSCalculator <- "ca/joeltherrien/randomforest/responses/competingrisk/IBSCalculator"
+.class_ErrorCalculator <- "ca/joeltherrien/randomforest/tree/vimp/ErrorCalculator"
+.class_RegressionErrorCalculator <- "ca/joeltherrien/randomforest/tree/vimp/RegressionErrorCalculator"
+.class_IBSErrorCalculatorWrapper <- "ca/joeltherrien/randomforest/tree/vimp/IBSErrorCalculatorWrapper"
+.class_VariableImportanceCalculator <- "ca/joeltherrien/randomforest/tree/vimp/VariableImportanceCalculator"
+
 
 .object_Optional <- function(object=NULL){
   if(is.null(object)){
