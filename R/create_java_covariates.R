@@ -29,8 +29,8 @@
 NULL
 
 # @rdname covariates
-Java_BooleanCovariate <- function(name, index){
-    covariate <- .jnew(.class_BooleanCovariate, name, as.integer(index))
+Java_BooleanCovariate <- function(name, index, na.penalty){
+    covariate <- .jnew(.class_BooleanCovariate, name, as.integer(index), na.penalty)
     covariate <- .jcast(covariate, .class_Object) # needed for later adding it into Java Lists
 
     return(covariate)
@@ -38,19 +38,19 @@ Java_BooleanCovariate <- function(name, index){
 
 # @rdname covariates
 # @param levels The levels of the factor as a character vector
-Java_FactorCovariate <- function(name, index, levels){
+Java_FactorCovariate <- function(name, index, levels, na.penalty){
     levelsArray <- .jarray(levels, makeResponse(.class_String))
     levelsList <- .jcall("java/util/Arrays", "Ljava/util/List;", "asList", .jcast(levelsArray, "[Ljava/lang/Object;"))
 
-    covariate <- .jnew(.class_FactorCovariate, name, as.integer(index), levelsList)
+    covariate <- .jnew(.class_FactorCovariate, name, as.integer(index), levelsList, na.penalty)
     covariate <- .jcast(covariate, .class_Object) # needed for later adding it into Java Lists
 
     return(covariate)
 }
 
 # @rdname covariates
-Java_NumericCovariate <- function(name, index){
-    covariate <- .jnew(.class_NumericCovariate, name, as.integer(index))
+Java_NumericCovariate <- function(name, index, na.penalty){
+    covariate <- .jnew(.class_NumericCovariate, name, as.integer(index), na.penalty)
     covariate <- .jcast(covariate, .class_Object) # needed for later adding it into Java Lists
 
     return(covariate)

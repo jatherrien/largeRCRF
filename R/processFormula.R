@@ -2,7 +2,7 @@
 # Internal function that takes a formula and processes it for use in the Java
 # code. existingCovariateList is optional; if not provided then a new one is
 # created internally.
-processFormula <- function(formula, data, covariateList.java = NULL){
+processFormula <- function(formula, data, covariateList.java = NULL, na.penalty = NULL){
   
   # Having an R copy of the data loaded at the same time can be wasteful; we
   # also allow users to provide an environment of the data which gets removed
@@ -52,8 +52,44 @@ processFormula <- function(formula, data, covariateList.java = NULL){
   # remove any response variables on the right-hand-side
   covariateData <- filteredData[, !(names(filteredData) %in% variablesToDrop), drop=FALSE]
   
+  # Now that we know how many predictor variables we have, we should check na.penalty
+  if(!is.null(na.penalty)){
+    if(!is.numeric(na.penalty) & !is.logical(na.penalty)){
+      stop("na.penalty must be either logical or numeric.")
+    }
+    
+    if(is.logical(na.penalty) & length(na.penalty) != 1 & length(na.penalty) != ncol(covariateData)){
+      stop("na.penalty must have length of either 1 or the number of predictor variables if logical.")
+    }
+    
+    if(is.numeric(na.penalty) & length(na.penalty) != 1){
+      stop("na.penalty must have length 1 if logical.")
+    }
+    
+    if(anyNA(na.penalty)){
+      stop("na.penalty cannot contain NAs.")
+    }
+
+    
+    # All good; now to transform it.
+    if(is.numeric(na.penalty)){
+      na.threshold <- na.penalty
+      na.penalty <- apply(covariateData, 2, function(x){mean(is.na(x))}) >= na.threshold
+    }
+    else if(is.logical(na.penalty) & length(na.penalty) == 1){
+      na.penalty <- rep(na.penalty, times = ncol(covariateData))
+    }
+    # else{} - na.penalty is logical and the correct length; no need to do anything to it
+    
+  }
   
-  dataset <- loadData(covariateData, colnames(covariateData), responses, covariateList.java = covariateList.java)
+  dataset <- loadData(
+    covariateData, 
+    colnames(covariateData), 
+    responses, 
+    covariateList.java = covariateList.java,
+    na.penalty = na.penalty
+  )
   
   return(dataset)
 }

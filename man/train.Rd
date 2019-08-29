@@ -6,8 +6,8 @@
 \usage{
 train(formula, data, splitFinder = NULL, nodeResponseCombiner = NULL,
   forestResponseCombiner = NULL, ntree, numberOfSplits, mtry, nodeSize,
-  maxNodeDepth = 1e+05, splitPureNodes = TRUE, savePath = NULL,
-  savePath.overwrite = c("warn", "delete", "merge"),
+  maxNodeDepth = 1e+05, na.penalty = TRUE, splitPureNodes = TRUE,
+  savePath = NULL, savePath.overwrite = c("warn", "delete", "merge"),
   cores = getCores(), randomSeed = NULL, displayProgress = TRUE)
 }
 \arguments{
@@ -19,9 +19,9 @@ constructed.}
 responses.}
 
 \item{splitFinder}{A split finder that's used to score splits in the random
-forest training algorithm. See \code{\link{CompetingRiskSplitFinders}}
-or \code{\link{WeightedVarianceSplitFinder}}. If you don't specify one,
-this function tries to pick one based on the response. For
+forest training algorithm. See \code{\link{CompetingRiskSplitFinders}} or
+\code{\link{WeightedVarianceSplitFinder}}. If you don't specify one, this
+function tries to pick one based on the response. For
 \code{\link{CR_Response}} without censor times, it will pick a
 \code{\link{LogRankSplitFinder}}; while if censor times were provided it
 will pick \code{\link{GrayLogRankSplitFinder}}; for integer or numeric
@@ -30,20 +30,20 @@ responses it picks a \code{\link{WeightedVarianceSplitFinder}}.}
 \item{nodeResponseCombiner}{A response combiner that's used to combine
 responses for each terminal node in a tree (regression example; average the
 observations in each tree into a single number). See
-\code{\link{CR_ResponseCombiner}} or
-\code{\link{MeanResponseCombiner}}. If you don't specify one, this function
-tries to pick one based on the response. For \code{\link{CR_Response}} it
-picks a \code{\link{CR_ResponseCombiner}}; for integer or numeric
-responses it picks a \code{\link{MeanResponseCombiner}}.}
+\code{\link{CR_ResponseCombiner}} or \code{\link{MeanResponseCombiner}}. If
+you don't specify one, this function tries to pick one based on the
+response. For \code{\link{CR_Response}} it picks a
+\code{\link{CR_ResponseCombiner}}; for integer or numeric responses it
+picks a \code{\link{MeanResponseCombiner}}.}
 
 \item{forestResponseCombiner}{A response combiner that's used to combine
 predictions across trees into one final result (regression example; average
 the prediction of each tree into a single number). See
-\code{\link{CR_FunctionCombiner}} or
-\code{\link{MeanResponseCombiner}}. If you don't specify one, this function
-tries to pick one based on the response. For \code{\link{CR_Response}} it
-picks a \code{\link{CR_FunctionCombiner}}; for integer or numeric
-responses it picks a \code{\link{MeanResponseCombiner}}.}
+\code{\link{CR_FunctionCombiner}} or \code{\link{MeanResponseCombiner}}. If
+you don't specify one, this function tries to pick one based on the
+response. For \code{\link{CR_Response}} it picks a
+\code{\link{CR_FunctionCombiner}}; for integer or numeric responses it
+picks a \code{\link{MeanResponseCombiner}}.}
 
 \item{ntree}{An integer that specifies how many trees should be trained.}
 
@@ -65,6 +65,21 @@ as large as \code{nodeSize}.}
 \item{maxNodeDepth}{This parameter is analogous to \code{nodeSize} in that it
 controls tree length; by default \code{maxNodeDepth} is an extremely high
 number and tree depth is controlled by \code{nodeSize}.}
+
+\item{na.penalty}{This parameter controls whether predictor variables with
+NAs should be penalized when being considered for a best split. Best splits
+(and the associated score) are determined on only non-NA data; the penalty
+is to take the best split identified, and to randomly assign any NAs
+(according to the proportion of data split left and right), and then
+recalculate the corresponding split score, when is then compared with the
+other split candiate variables. This penalty adds some computational time,
+so it may be disabled for some variables. \code{na.penalty} may be
+specified as a vector of logicals indicating, for each predictor variable,
+whether the penalty should be applied to that variable. If it's length 1
+then it applies to all variables. Alternatively, a single numeric value may
+be provided to indicate a threshold whereby the penalty is activated only
+if the proportion of NAs for that variable in the training set exceeds that
+threshold.}
 
 \item{splitPureNodes}{This parameter determines whether the algorithm will
 split a pure node. If set to FALSE, then before every split it will check
@@ -160,7 +175,7 @@ data <- data.frame(x1, x2)
 
 forest <- train(CR_Response(delta, u) ~ x1 + x2, data,
    LogRankSplitFinder(1:2), CR_ResponseCombiner(1:2),
-   CR_FunctionCombiner(1:2), ntree=100, numberOfSplits=5, 
+   CR_FunctionCombiner(1:2), ntree=100, numberOfSplits=5,
    mtry=1, nodeSize=10)
 newData <- data.frame(x1 = c(-1, 0, 1), x2 = 0)
 ypred <- predict(forest, newData)

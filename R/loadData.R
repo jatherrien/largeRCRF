@@ -1,4 +1,4 @@
-loadData <- function(data, xVarNames, responses, covariateList.java = NULL){
+loadData <- function(data, xVarNames, responses, covariateList.java = NULL, na.penalty = NULL){
 
   if(class(responses) == "integer" | class(responses) == "numeric"){
     responses <- Numeric(responses)
@@ -6,7 +6,7 @@ loadData <- function(data, xVarNames, responses, covariateList.java = NULL){
 
   # connectToData provides a pre-created covariate list we can re-use
   if(is.null(covariateList.java)){
-    covariateList.java <- getCovariateList(data, xVarNames)
+    covariateList.java <- getCovariateList(data, xVarNames, na.penalty)
   }
   
   textColumns <- list()
@@ -22,7 +22,7 @@ loadData <- function(data, xVarNames, responses, covariateList.java = NULL){
 
 }
 
-getCovariateList <- function(data, xvarNames){
+getCovariateList <- function(data, xvarNames, na.penalty){
   covariateList <- .jcast(.jnew(.class_ArrayList, length(xvarNames)), .class_List)
 
   for(i in 1:length(xvarNames)){
@@ -31,14 +31,14 @@ getCovariateList <- function(data, xvarNames){
     column <- data[,xName]
 
     if(class(column) == "numeric" | class(column) == "integer"){
-      covariate <- Java_NumericCovariate(xName, i-1)
+      covariate <- Java_NumericCovariate(xName, i-1, na.penalty[i])
     }
     else if(class(column) == "logical"){
-      covariate <- Java_BooleanCovariate(xName, i-1)
+      covariate <- Java_BooleanCovariate(xName, i-1, na.penalty[i])
     }
     else if(class(column) == "factor"){
       lvls <- levels(column)
-      covariate <- Java_FactorCovariate(xName, i-1, lvls)
+      covariate <- Java_FactorCovariate(xName, i-1, lvls, na.penalty[i])
     }
     else{
       stop("Unknown column type")
