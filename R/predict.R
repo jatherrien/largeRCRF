@@ -99,7 +99,7 @@ predict.JRandomForest <- function(object, newData=NULL, parallel=TRUE, out.of.ba
   predictionsJava <- .jcall(forestObject, makeResponse(.class_List), function.to.use, predictionDataList)
 
   if(predictionClass == "numeric"){
-    predictions <- vector(length=nrow(newData), mode="numeric")
+    predictions <- vector(length=numRows, mode="numeric")
   }
   else{
     predictions <- list()

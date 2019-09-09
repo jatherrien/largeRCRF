@@ -28,6 +28,7 @@ test_that("Regresssion doesn't crash", {
   forest <- train(y ~ x, trainingData, ntree=50, numberOfSplits=0, mtry=1, nodeSize=5, cores=2, displayProgress=FALSE)
   
   predictions <- predict(forest, testData)
+  other_predictions <- predict(forest) # there was a bug if newData wasn't provided.
   
   expect_true(T) # show Ok if we got this far
   
