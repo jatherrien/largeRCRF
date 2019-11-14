@@ -18,7 +18,7 @@ train.internal <- function(dataset, splitFinder,
                            nodeResponseCombiner, forestResponseCombiner, ntree, 
                            numberOfSplits, mtry, nodeSize, maxNodeDepth, 
                            splitPureNodes, savePath, savePath.overwrite, 
-                           cores, randomSeed, displayProgress){
+                           forest.output, cores, randomSeed, displayProgress){
   
   # Some quick checks on parameters
   ntree <- as.integer(ntree)
@@ -49,6 +49,10 @@ train.internal <- function(dataset, splitFinder,
   
   if(is.null(savePath.overwrite) | length(savePath.overwrite)==0 | !(savePath.overwrite[1] %in% c("warn", "delete", "merge"))){
     stop("savePath.overwrite must be one of c(\"warn\", \"delete\", \"merge\")")
+  }
+  
+  if(is.null(forest.output) | length(forest.output)==0 | !(forest.output[1] %in% c("online", "offline"))){
+    stop("forest.output must be one of c(\"online\", \"offline\")")
   }
   
   if(is.null(splitFinder)){
@@ -129,22 +133,23 @@ train.internal <- function(dataset, splitFinder,
                          params=params,
                          forestCall=match.call())
     
+    forest.java <- NULL
     if(cores > 1){
-      .jcall(forestTrainer, "V", "trainParallelOnDisk", .object_Optional(), as.integer(cores))
+      forest.java <- .jcall(forestTrainer, makeResponse(.class_OfflineForest), "trainParallelOnDisk", .object_Optional(), as.integer(cores))
     } else {
-      .jcall(forestTrainer, "V", "trainSerialOnDisk", .object_Optional())
+      forest.java <- .jcall(forestTrainer, makeResponse(.class_OfflineForest), "trainSerialOnDisk", .object_Optional())
     }
     
-    # Need to now load forest trees back into memory
-    forest.java <- .jcall(.class_DataUtils, makeResponse(.class_Forest), "loadForest", savePath, forestResponseCombiner$javaObject)
-    
-    
+    if(forest.output[1] == "online"){
+      forest.java <- convertToOnlineForest.Java(forest.java)
+    }
+
   }
   else{ # save directly into memory
     if(cores > 1){
-      forest.java <- .jcall(forestTrainer, makeResponse(.class_Forest), "trainParallelInMemory", .object_Optional(), as.integer(cores))
+      forest.java <- .jcall(forestTrainer, makeResponse(.class_OnlineForest), "trainParallelInMemory", .object_Optional(), as.integer(cores))
     } else {
-      forest.java <- .jcall(forestTrainer, makeResponse(.class_Forest), "trainSerialInMemory", .object_Optional())
+      forest.java <- .jcall(forestTrainer, makeResponse(.class_OnlineForest), "trainSerialInMemory", .object_Optional())
     }
   }
   
@@ -253,6 +258,10 @@ train.internal <- function(dataset, splitFinder,
 #'   assumes (without checking) that the existing trees are from a previous run
 #'   and starts from where it left off. This option is useful if recovering from
 #'   a crash.
+#' @param forest.output This parameter only applies if \code{savePath} has been
+#'   set; set to 'online' (default) and the saved forest will be loaded into
+#'   memory after being trained. Set to 'offline' and the forest is not saved
+#'   into memory, but can still be used in a memory unintensive manner.
 #' @param cores This parameter specifies how many trees will be simultaneously
 #'   trained. By default the package attempts to detect how many cores you have
 #'   by using the \code{parallel} package and using all of them. You may specify
@@ -311,7 +320,8 @@ train.internal <- function(dataset, splitFinder,
 train <- function(formula, data, splitFinder = NULL, nodeResponseCombiner = NULL,
                   forestResponseCombiner = NULL, ntree, numberOfSplits, mtry,
                   nodeSize, maxNodeDepth = 100000, na.penalty = TRUE, splitPureNodes=TRUE, 
-                  savePath=NULL, savePath.overwrite=c("warn", "delete", "merge"), 
+                  savePath = NULL, savePath.overwrite = c("warn", "delete", "merge"), 
+                  forest.output = c("online", "offline"),
                   cores = getCores(), randomSeed = NULL, displayProgress = TRUE){
   
   dataset <- processFormula(formula, data, na.penalty = na.penalty)
@@ -322,8 +332,8 @@ train <- function(formula, data, splitFinder = NULL, nodeResponseCombiner = NULL
                            ntree = ntree, numberOfSplits = numberOfSplits,
                            mtry = mtry, nodeSize = nodeSize, maxNodeDepth = maxNodeDepth,
                            splitPureNodes = splitPureNodes, savePath = savePath,
-                           savePath.overwrite = savePath.overwrite, cores = cores,
-                           randomSeed = randomSeed, displayProgress = displayProgress)
+                           savePath.overwrite = savePath.overwrite, forest.output = forest.output,
+                           cores = cores, randomSeed = randomSeed, displayProgress = displayProgress)
   
   forest$call <- match.call()
   forest$formula <- formula
@@ -370,8 +380,10 @@ createTreeTrainer <- function(responseCombiner, splitFinder, covariateList, numb
   builderClassReturned <- makeResponse(.class_TreeTrainer_Builder)
 
   builder <- .jcall(.class_TreeTrainer, builderClassReturned, "builder")
-
-  builder <- .jcall(builder, builderClassReturned, "responseCombiner", responseCombiner$javaObject)
+  
+  responseCombinerCasted <- .jcast(responseCombiner$javaObject, .class_ResponseCombiner) # might need to cast a ForestResponseCombiner down
+  
+  builder <- .jcall(builder, builderClassReturned, "responseCombiner", responseCombinerCasted)
   builder <- .jcall(builder, builderClassReturned, "splitFinder", splitFinder$javaObject)
   builder <- .jcall(builder, builderClassReturned, "covariates", covariateList)
   builder <- .jcall(builder, builderClassReturned, "numberOfSplits", as.integer(numberOfSplits))

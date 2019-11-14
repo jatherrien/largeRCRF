@@ -2,7 +2,11 @@ context("Train, save, and load without error")
 
 test_that("Can save & load regression example", {
 
-  expect_false(file.exists("trees_saving_loading")) # Folder shouldn't exist yet
+  if(file.exists("trees_saving_loading")){
+    unlink("trees_saving_loading", recursive=TRUE)
+  }
+  
+  expect_false(file.exists("trees_saving_loading")) # Folder shouldn't exist at this point
   
   x1 <- rnorm(1000)
   x2 <- rnorm(1000)

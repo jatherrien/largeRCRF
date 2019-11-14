@@ -4,10 +4,19 @@
 \alias{loadForest}
 \title{Load Random Forest}
 \usage{
-loadForest(directory)
+loadForest(directory, forest.output = c("online", "offline"),
+  maxTreeNum = NULL)
 }
 \arguments{
 \item{directory}{The directory created that saved the previous forest.}
+
+\item{forest.output}{Specifies whether the forest loaded should be loaded
+into memory, or reflect the saved files where only one tree is loaded at a
+time.}
+
+\item{maxTreeNum}{If for some reason you only want to load the number of
+trees up until a certain point, you can specify maxTreeNum as a single
+number.}
 }
 \value{
 A JForest object; see \code{\link{train}} for details.

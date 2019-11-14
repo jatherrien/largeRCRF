@@ -42,7 +42,7 @@ CR_FunctionCombiner <- function(events, times = NULL){
   }
 
   javaObject <- .jnew(.class_CompetingRiskFunctionCombiner, eventArray, timeArray)
-  javaObject <- .jcast(javaObject, .class_ResponseCombiner)
+  javaObject <- .jcast(javaObject, .class_ForestResponseCombiner)
 
   combiner <- list(javaObject=javaObject,
                    call=match.call(),

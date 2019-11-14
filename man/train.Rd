@@ -8,7 +8,8 @@ train(formula, data, splitFinder = NULL, nodeResponseCombiner = NULL,
   forestResponseCombiner = NULL, ntree, numberOfSplits, mtry, nodeSize,
   maxNodeDepth = 1e+05, na.penalty = TRUE, splitPureNodes = TRUE,
   savePath = NULL, savePath.overwrite = c("warn", "delete", "merge"),
-  cores = getCores(), randomSeed = NULL, displayProgress = TRUE)
+  forest.output = c("online", "offline"), cores = getCores(),
+  randomSeed = NULL, displayProgress = TRUE)
 }
 \arguments{
 \item{formula}{You may specify the response and covariates as a formula
@@ -105,6 +106,11 @@ parameters) are overwritten but the saved trees are not. The algorithm
 assumes (without checking) that the existing trees are from a previous run
 and starts from where it left off. This option is useful if recovering from
 a crash.}
+
+\item{forest.output}{This parameter only applies if \code{savePath} has been
+set; set to 'online' (default) and the saved forest will be loaded into
+memory after being trained. Set to 'offline' and the forest is not saved
+into memory, but can still be used in a memory unintensive manner.}
 
 \item{cores}{This parameter specifies how many trees will be simultaneously
 trained. By default the package attempts to detect how many cores you have

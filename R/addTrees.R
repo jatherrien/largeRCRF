@@ -14,6 +14,10 @@
 #' @param savePath.overwrite If \code{savePath} is pointing to an existing
 #'   directory, possibly containing another forest, this specifies what should
 #'   be done.
+#' @param forest.output This parameter only applies if \code{savePath} has been
+#'   set; set to 'online' (default) and the saved forest will be loaded into
+#'   memory after being trained. Set to 'offline' and the forest is not saved
+#'   into memory, but can still be used in a memory unintensive manner.
 #' @param cores The number of cores to be used for training the new trees.
 #' @param displayProgress A logical indicating whether the progress should be
 #'   displayed to console; default is \code{TRUE}. Useful to set to FALSE in
@@ -22,7 +26,11 @@
 #' @return A new forest with the original and additional trees.
 #' @export
 #' 
-addTrees <- function(forest, numTreesToAdd, savePath = NULL, savePath.overwrite = c("warn", "delete", "merge"), cores = getCores(), displayProgress = TRUE){
+addTrees <- function(forest, numTreesToAdd, savePath = NULL,
+                     savePath.overwrite = c("warn", "delete", "merge"),
+                     forest.output = c("online", "offline"), 
+                     cores = getCores(), displayProgress = TRUE){
+  
   if(is.null(forest$dataset)){
     stop("Training dataset must be connected to forest before more trees can be added; this can be done manually by using connectToData")
   }
@@ -35,6 +43,10 @@ addTrees <- function(forest, numTreesToAdd, savePath = NULL, savePath.overwrite 
   
   if(is.null(savePath.overwrite) | length(savePath.overwrite)==0 | !(savePath.overwrite[1] %in% c("warn", "delete", "merge"))){
     stop("savePath.overwrite must be one of c(\"warn\", \"delete\", \"merge\")")
+  }
+  
+  if(is.null(forest.output) | length(forest.output)==0 | !(forest.output[1] %in% c("online", "offline"))){
+    stop("forest.output must be one of c(\"online\", \"offline\")")
   }
   
   newTreeCount <- forest$params$ntree + as.integer(numTreesToAdd)
@@ -98,22 +110,23 @@ addTrees <- function(forest, numTreesToAdd, savePath = NULL, savePath.overwrite 
                          params=params,
                          forestCall=match.call())
     
+    forest.java <- NULL
     if(cores > 1){
-      .jcall(forestTrainer, "V", "trainParallelOnDisk", initial.forest.optional, as.integer(cores))
+      forest.java <- .jcall(forestTrainer, makeResponse(.class_OfflineForest), "trainParallelOnDisk", initial.forest.optional, as.integer(cores))
     } else {
-      .jcall(forestTrainer, "V", "trainSerialOnDisk", initial.forest.optional)
+      forest.java <- .jcall(forestTrainer, makeResponse(.class_OfflineForest), "trainSerialOnDisk", initial.forest.optional)
     }
     
-    # Need to now load forest trees back into memory
-    forest.java <- .jcall(.class_DataUtils, makeResponse(.class_Forest), "loadForest", savePath, forest$params$forestResponseCombiner$javaObject)
-    
+    if(forest.output[1] == "online"){
+      forest.java <- convertToOnlineForest.Java(forest.java)
+    }
     
   }
   else{ # save directly into memory
     if(cores > 1){
-      forest.java <- .jcall(forestTrainer, makeResponse(.class_Forest), "trainParallelInMemory", initial.forest.optional, as.integer(cores))
+      forest.java <- .jcall(forestTrainer, makeResponse(.class_OnlineForest), "trainParallelInMemory", initial.forest.optional, as.integer(cores))
     } else {
-      forest.java <- .jcall(forestTrainer, makeResponse(.class_Forest), "trainSerialInMemory", initial.forest.optional)
+      forest.java <- .jcall(forestTrainer, makeResponse(.class_OnlineForest), "trainSerialInMemory", initial.forest.optional)
     }
   }
   

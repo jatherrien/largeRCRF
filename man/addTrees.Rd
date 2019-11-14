@@ -6,7 +6,8 @@
 \usage{
 addTrees(forest, numTreesToAdd, savePath = NULL,
   savePath.overwrite = c("warn", "delete", "merge"),
-  cores = getCores(), displayProgress = TRUE)
+  forest.output = c("online", "offline"), cores = getCores(),
+  displayProgress = TRUE)
 }
 \arguments{
 \item{forest}{An existing forest.}
@@ -20,6 +21,11 @@ a previously saved forest.}
 \item{savePath.overwrite}{If \code{savePath} is pointing to an existing
 directory, possibly containing another forest, this specifies what should
 be done.}
+
+\item{forest.output}{This parameter only applies if \code{savePath} has been
+set; set to 'online' (default) and the saved forest will be loaded into
+memory after being trained. Set to 'offline' and the forest is not saved
+into memory, but can still be used in a memory unintensive manner.}
 
 \item{cores}{The number of cores to be used for training the new trees.}
 

@@ -5,6 +5,12 @@
 #' Loads a random forest that was saved using \code{\link{saveForest}}.
 #'
 #' @param directory The directory created that saved the previous forest.
+#' @param forest.output Specifies whether the forest loaded should be loaded
+#'   into memory, or reflect the saved files where only one tree is loaded at a
+#'   time.
+#' @param maxTreeNum If for some reason you only want to load the number of
+#'   trees up until a certain point, you can specify maxTreeNum as a single
+#'   number.
 #' @return A JForest object; see \code{\link{train}} for details.
 #' @export
 #' @seealso \code{\link{train}}, \code{\link{saveForest}}
@@ -20,7 +26,11 @@
 #'
 #' saveForest(forest, "trees")
 #' new_forest <- loadForest("trees")
-loadForest <- function(directory){
+loadForest <- function(directory, forest.output = c("online", "offline"), maxTreeNum = NULL){
+  
+  if(is.null(forest.output) | length(forest.output)==0 | !(forest.output[1] %in% c("online", "offline"))){
+    stop("forest.output must be one of c(\"online\", \"offline\")")
+  }
   
   # First load the response combiners and the split finders
   nodeResponseCombiner.java <- .jcall(.class_DataUtils, makeResponse(.class_Object), "loadObject", paste0(directory, "/nodeResponseCombiner.jData"))
@@ -30,7 +40,7 @@ loadForest <- function(directory){
   splitFinder.java <- .jcast(splitFinder.java, .class_SplitFinder)
   
   forestResponseCombiner.java <- .jcall(.class_DataUtils, makeResponse(.class_Object), "loadObject", paste0(directory, "/forestResponseCombiner.jData"))
-  forestResponseCombiner.java <- .jcast(forestResponseCombiner.java, .class_ResponseCombiner)
+  forestResponseCombiner.java <- .jcast(forestResponseCombiner.java, .class_ForestResponseCombiner)
   
   covariateList <- .jcall(.class_DataUtils, makeResponse(.class_Object), "loadObject", paste0(directory, "/covariateList.jData"))
   covariateList <- .jcast(covariateList, .class_List)
@@ -42,8 +52,11 @@ loadForest <- function(directory){
   params$splitFinder$javaObject <- splitFinder.java
   params$forestResponseCombiner$javaObject <- forestResponseCombiner.java
   
-  forest <- loadForestArgumentsSpecified(directory, params$nodeResponseCombiner, params$splitFinder, params$forestResponseCombiner, covariateList, call,
-                                      params$ntree, params$numberOfSplits, params$mtry, params$nodeSize, params$maxNodeDepth, params$splitPureNodes, params$randomSeed)
+  forest <- loadForestArgumentsSpecified(directory, params$nodeResponseCombiner, params$splitFinder, 
+                                         params$forestResponseCombiner, covariateList, call,
+                                         params$ntree, params$numberOfSplits, params$mtry,
+                                         params$nodeSize, params$maxNodeDepth, params$splitPureNodes,
+                                         params$randomSeed, forest.output, maxTreeNum)
   
   return(forest)
   
@@ -55,8 +68,11 @@ loadForest <- function(directory){
 # that uses the Java version's settings yaml file to recreate the forest, but
 # I'd appreciate knowing that someone's going to use it first (email me; see
 # README).
-loadForestArgumentsSpecified <- function(treeDirectory, nodeResponseCombiner, splitFinder, forestResponseCombiner, 
-                                 covariateList.java, call, ntree, numberOfSplits, mtry, nodeSize, maxNodeDepth = 100000, splitPureNodes=TRUE, randomSeed=NULL){
+loadForestArgumentsSpecified <- function(treeDirectory, nodeResponseCombiner, splitFinder,
+                                         forestResponseCombiner, covariateList.java, call,
+                                         ntree, numberOfSplits, mtry, nodeSize,
+                                         maxNodeDepth = 100000, splitPureNodes=TRUE,
+                                         randomSeed=NULL, forest.output = "online", maxTreeNum = NULL){
   
   params <- list(
     splitFinder=splitFinder,
@@ -71,7 +87,33 @@ loadForestArgumentsSpecified <- function(treeDirectory, nodeResponseCombiner, sp
     randomSeed=randomSeed
   )
   
-  forest.java <- .jcall(.class_DataUtils, makeResponse(.class_Forest), "loadForest", treeDirectory, forestResponseCombiner$javaObject)
+  forest.java <- NULL
+  if(forest.output[1] == "online"){
+    castedForestResponseCombiner <- .jcast(forestResponseCombiner$javaObject, .class_ResponseCombiner) # OnlineForest constructor takes a ResponseCombiner
+    
+    if(is.null(maxTreeNum)){
+      forest.java <- .jcall(.class_DataUtils, makeResponse(.class_OnlineForest), "loadOnlineForest",
+                            treeDirectory, castedForestResponseCombiner)
+    } else{
+      tree.file.array <- .jcall(.class_RUtils, paste0("[", makeResponse(.class_File)), "getTreeFileArray", 
+                                treeDirectory, as.integer(maxTreeNum), evalArray = FALSE)
+      forest.java <- .jcall(.class_DataUtils, makeResponse(.class_OnlineForest), "loadOnlineForest",
+                            tree.file.array, castedForestResponseCombiner)
+      
+    }
+    
+  } else{ # offline forest
+    if(is.null(maxTreeNum)){
+      path.as.file <- .jnew(.class_File, treeDirectory)
+      forest.java <- .jnew(.class_OfflineForest, path.as.file, forestResponseCombiner$javaObject)
+    } else{
+      tree.file.array <- .jcall(.class_RUtils, paste0("[", makeResponse(.class_File)), "getTreeFileArray", 
+                                treeDirectory, as.integer(maxTreeNum), evalArray = FALSE)
+      forest.java <- .jnew(.class_OfflineForest, tree.file.array, forestResponseCombiner$javaObject)
+    }
+  }
+  
+  
   
   forestObject <- list(call=call, javaObject=forest.java, covariateList=covariateList.java, params=params)
   class(forestObject) <- "JRandomForest"

@@ -11,6 +11,7 @@
 .class_Serializable <- "java/io/Serializable"
 .class_File <- "java/io/File"
 .class_Random <- "java/util/Random"
+.class_Class <- "java/lang/Class"
 
 # Utility Classes
 .class_DataUtils <- "ca/joeltherrien/randomforest/utils/DataUtils"
@@ -41,9 +42,12 @@
 
 # Forest class
 .class_Forest <- "ca/joeltherrien/randomforest/tree/Forest"
+.class_OnlineForest <- "ca/joeltherrien/randomforest/tree/OnlineForest"
+.class_OfflineForest <- "ca/joeltherrien/randomforest/tree/OfflineForest"
 
 # ResponseCombiner classes
 .class_ResponseCombiner <- "ca/joeltherrien/randomforest/tree/ResponseCombiner"
+.class_ForestResponseCombiner <- "ca/joeltherrien/randomforest/tree/ForestResponseCombiner"
 .class_CompetingRiskResponseCombiner <- "ca/joeltherrien/randomforest/responses/competingrisk/combiner/CompetingRiskResponseCombiner"
 .class_CompetingRiskFunctionCombiner <- "ca/joeltherrien/randomforest/responses/competingrisk/combiner/CompetingRiskFunctionCombiner"
 .class_MeanResponseCombiner <- "ca/joeltherrien/randomforest/responses/regression/MeanResponseCombiner"
@@ -77,4 +81,10 @@
 # This function does that.
 makeResponse <- function(className){
   return(paste0("L", className, ";"))
+}
+
+getJavaClass <- function(object){
+  class <- .jcall(object, makeResponse(.class_Class), "getClass")
+  className <- .jcall(class, "S", "getName")
+  return(className)
 }

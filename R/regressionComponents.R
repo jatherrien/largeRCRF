@@ -48,7 +48,7 @@ WeightedVarianceSplitFinder <- function(){
 #'
 MeanResponseCombiner <- function(){
   javaObject <- .jnew(.class_MeanResponseCombiner)
-  javaObject <- .jcast(javaObject, .class_ResponseCombiner)
+  javaObject <- .jcast(javaObject, .class_ForestResponseCombiner)
 
   combiner <- list(javaObject=javaObject, call=match.call(), outputClass="numeric")
   combiner$convertToRFunction <- function(javaObject, ...){
